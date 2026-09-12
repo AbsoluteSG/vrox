@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Vrox_Checkerboard
+  m_Shader: {fileID: 4800000, guid: 4c9c98d48c4a84259ae0811c759ab12b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - VROX_WORLD_SPACE
+  - _WORLDSPACE_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _MeltAmount: 2
+    - _MeltDroop: 0
+    - _MeltScale: 1
+    - _Scale: 0.5
+    - _WaveAmplitude: 0.75
+    - _WaveFrequency: 0.2
+    - _WaveSpeed: 0.8
+    - _WorldSpace: 1
+    m_Colors:
+    - _ColorA: {r: 0.38679248, g: 0.21371733, b: 0.14778392, a: 1}
+    - _ColorB: {r: 0.2830189, g: 0.114458494, b: 0.057404775, a: 1}
+    - _Scroll: {r: 0.15, g: 0.08, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
