@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2d6d9a8d9ab44c5582fc491615ec47a, type: 3}
+  m_Name: LootPool
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.LootPoolItem
+  Id: 1
+  Bag: 0
+  Items:
+  - Item: {fileID: 11400000, guid: 8f0e75320181dc94f0572745e8410bbf, type: 2}
+    ChancePercent: 25
+    Count: 1
+  - Item: {fileID: 11400000, guid: 339c40c1c0d6341af8622b9cc7516898, type: 2}
+    ChancePercent: 25
+    Count: 1

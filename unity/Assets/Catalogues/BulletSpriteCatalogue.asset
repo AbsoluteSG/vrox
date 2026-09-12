@@ -1,0 +1,550 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed4df13b4d413a2ca3e3de1fcdd06732, type: 3}
+  m_Name: BulletSpriteCatalogue
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.BulletSpriteCatalogue
+  Sheet: {fileID: 2800000, guid: 6067a3e9111a919294cf31dc2b536e19, type: 3}
+  Sprites:
+  - Name: 01
+    UvRect:
+      serializedVersion: 2
+      x: 0.551270
+      y: 0.256836
+      width: 0.047852
+      height: 0.092773
+    Aspect: 1.0316
+  - Name: 02
+    UvRect:
+      serializedVersion: 2
+      x: 0.351562
+      y: 0.254883
+      width: 0.049316
+      height: 0.094727
+    Aspect: 1.0412
+  - Name: 03
+    UvRect:
+      serializedVersion: 2
+      x: 0.401855
+      y: 0.254883
+      width: 0.048340
+      height: 0.094727
+    Aspect: 1.0206
+  - Name: 04
+    UvRect:
+      serializedVersion: 2
+      x: 0.451172
+      y: 0.254883
+      width: 0.049316
+      height: 0.094727
+    Aspect: 1.0412
+  - Name: 05
+    UvRect:
+      serializedVersion: 2
+      x: 0.300293
+      y: 0.250977
+      width: 0.050293
+      height: 0.098633
+    Aspect: 1.0198
+  - Name: 06
+    UvRect:
+      serializedVersion: 2
+      x: 0.501465
+      y: 0.254883
+      width: 0.048828
+      height: 0.094727
+    Aspect: 1.0309
+  - Name: 07
+    UvRect:
+      serializedVersion: 2
+      x: 0.600098
+      y: 0.262695
+      width: 0.044922
+      height: 0.086914
+    Aspect: 1.0337
+  - Name: 08
+    UvRect:
+      serializedVersion: 2
+      x: 0.645996
+      y: 0.262695
+      width: 0.044434
+      height: 0.086914
+    Aspect: 1.0225
+  - Name: 09
+    UvRect:
+      serializedVersion: 2
+      x: 0.691406
+      y: 0.262695
+      width: 0.044922
+      height: 0.086914
+    Aspect: 1.0337
+  - Name: 10
+    UvRect:
+      serializedVersion: 2
+      x: 0.199219
+      y: 0.165039
+      width: 0.041016
+      height: 0.079102
+    Aspect: 1.0370
+  - Name: 11
+    UvRect:
+      serializedVersion: 2
+      x: 0.717773
+      y: 0.714844
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 12
+    UvRect:
+      serializedVersion: 2
+      x: 0.388672
+      y: 0.710938
+      width: 0.109375
+      height: 0.123047
+    Aspect: 1.7778
+  - Name: 13
+    UvRect:
+      serializedVersion: 2
+      x: 0.499023
+      y: 0.712891
+      width: 0.108398
+      height: 0.121094
+    Aspect: 1.7903
+  - Name: 14
+    UvRect:
+      serializedVersion: 2
+      x: 0.608398
+      y: 0.712891
+      width: 0.108398
+      height: 0.121094
+    Aspect: 1.7903
+  - Name: 15
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.351562
+      width: 0.103027
+      height: 0.113281
+    Aspect: 1.8190
+  - Name: 16
+    UvRect:
+      serializedVersion: 2
+      x: 0.540039
+      y: 0.470703
+      width: 0.104492
+      height: 0.115234
+    Aspect: 1.8136
+  - Name: 17
+    UvRect:
+      serializedVersion: 2
+      x: 0.104004
+      y: 0.353516
+      width: 0.102051
+      height: 0.111328
+    Aspect: 1.8333
+  - Name: 18
+    UvRect:
+      serializedVersion: 2
+      x: 0.207031
+      y: 0.355469
+      width: 0.101562
+      height: 0.109375
+    Aspect: 1.8571
+  - Name: 19
+    UvRect:
+      serializedVersion: 2
+      x: 0.645508
+      y: 0.470703
+      width: 0.104492
+      height: 0.115234
+    Aspect: 1.8136
+  - Name: 20
+    UvRect:
+      serializedVersion: 2
+      x: 0.412598
+      y: 0.359375
+      width: 0.099121
+      height: 0.105469
+    Aspect: 1.8796
+  - Name: 21
+    UvRect:
+      serializedVersion: 2
+      x: 0.241211
+      y: 0.165039
+      width: 0.097168
+      height: 0.079102
+    Aspect: 2.4568
+  - Name: 22
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.163086
+      width: 0.098633
+      height: 0.081055
+    Aspect: 2.4337
+  - Name: 23
+    UvRect:
+      serializedVersion: 2
+      x: 0.833008
+      y: 0.266602
+      width: 0.098633
+      height: 0.083008
+    Aspect: 2.3765
+  - Name: 24
+    UvRect:
+      serializedVersion: 2
+      x: 0.099609
+      y: 0.163086
+      width: 0.098633
+      height: 0.081055
+    Aspect: 2.4337
+  - Name: 25
+    UvRect:
+      serializedVersion: 2
+      x: 0.536621
+      y: 0.168945
+      width: 0.096680
+      height: 0.075195
+    Aspect: 2.5714
+  - Name: 26
+    UvRect:
+      serializedVersion: 2
+      x: 0.438477
+      y: 0.166992
+      width: 0.097168
+      height: 0.077148
+    Aspect: 2.5190
+  - Name: 27
+    UvRect:
+      serializedVersion: 2
+      x: 0.634277
+      y: 0.170898
+      width: 0.096191
+      height: 0.073242
+    Aspect: 2.6267
+  - Name: 28
+    UvRect:
+      serializedVersion: 2
+      x: 0.339355
+      y: 0.165039
+      width: 0.098145
+      height: 0.079102
+    Aspect: 2.4815
+  - Name: 29
+    UvRect:
+      serializedVersion: 2
+      x: 0.731445
+      y: 0.173828
+      width: 0.094238
+      height: 0.070312
+    Aspect: 2.6806
+  - Name: 30
+    UvRect:
+      serializedVersion: 2
+      x: 0.350586
+      y: 0.841797
+      width: 0.113770
+      height: 0.158203
+    Aspect: 1.4383
+  - Name: 31
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.835938
+      width: 0.114746
+      height: 0.164062
+    Aspect: 1.3988
+  - Name: 32
+    UvRect:
+      serializedVersion: 2
+      x: 0.115723
+      y: 0.835938
+      width: 0.115234
+      height: 0.164062
+    Aspect: 1.4048
+  - Name: 33
+    UvRect:
+      serializedVersion: 2
+      x: 0.231934
+      y: 0.837891
+      width: 0.117676
+      height: 0.162109
+    Aspect: 1.4518
+  - Name: 34
+    UvRect:
+      serializedVersion: 2
+      x: 0.284668
+      y: 0.709961
+      width: 0.103027
+      height: 0.124023
+    Aspect: 1.6614
+  - Name: 35
+    UvRect:
+      serializedVersion: 2
+      x: 0.687988
+      y: 0.872070
+      width: 0.107910
+      height: 0.127930
+    Aspect: 1.6870
+  - Name: 36
+    UvRect:
+      serializedVersion: 2
+      x: 0.856934
+      y: 0.471680
+      width: 0.108887
+      height: 0.114258
+    Aspect: 1.9060
+  - Name: 37
+    UvRect:
+      serializedVersion: 2
+      x: 0.465332
+      y: 0.865234
+      width: 0.109375
+      height: 0.134766
+    Aspect: 1.6232
+  - Name: 38
+    UvRect:
+      serializedVersion: 2
+      x: 0.737305
+      y: 0.262695
+      width: 0.094727
+      height: 0.086914
+    Aspect: 2.1798
+  - Name: 39
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.708984
+      width: 0.109375
+      height: 0.125000
+    Aspect: 1.7500
+  - Name: 40
+    UvRect:
+      serializedVersion: 2
+      x: 0.575684
+      y: 0.871094
+      width: 0.111328
+      height: 0.128906
+    Aspect: 1.7273
+  - Name: 41
+    UvRect:
+      serializedVersion: 2
+      x: 0.110352
+      y: 0.708984
+      width: 0.109863
+      height: 0.125000
+    Aspect: 1.7578
+  - Name: 42
+    UvRect:
+      serializedVersion: 2
+      x: 0.796875
+      y: 0.873047
+      width: 0.110352
+      height: 0.126953
+    Aspect: 1.7385
+  - Name: 43
+    UvRect:
+      serializedVersion: 2
+      x: 0.433594
+      y: 0.468750
+      width: 0.105469
+      height: 0.117188
+    Aspect: 1.8000
+  - Name: 44
+    UvRect:
+      serializedVersion: 2
+      x: 0.826172
+      y: 0.714844
+      width: 0.106934
+      height: 0.119141
+    Aspect: 1.7951
+  - Name: 45
+    UvRect:
+      serializedVersion: 2
+      x: 0.750977
+      y: 0.470703
+      width: 0.104980
+      height: 0.115234
+    Aspect: 1.8220
+  - Name: 46
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.587891
+      width: 0.106934
+      height: 0.119141
+    Aspect: 1.7951
+  - Name: 47
+    UvRect:
+      serializedVersion: 2
+      x: 0.309570
+      y: 0.355469
+      width: 0.102051
+      height: 0.109375
+    Aspect: 1.8661
+  - Name: 48
+    UvRect:
+      serializedVersion: 2
+      x: 0.512695
+      y: 0.361328
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 49
+    UvRect:
+      serializedVersion: 2
+      x: 0.612793
+      y: 0.361328
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 50
+    UvRect:
+      serializedVersion: 2
+      x: 0.712891
+      y: 0.361328
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 51
+    UvRect:
+      serializedVersion: 2
+      x: 0.812988
+      y: 0.361328
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 52
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.246094
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 53
+    UvRect:
+      serializedVersion: 2
+      x: 0.100098
+      y: 0.246094
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 54
+    UvRect:
+      serializedVersion: 2
+      x: 0.200195
+      y: 0.246094
+      width: 0.099121
+      height: 0.103516
+    Aspect: 1.9151
+  - Name: 55
+    UvRect:
+      serializedVersion: 2
+      x: 0.107910
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 56
+    UvRect:
+      serializedVersion: 2
+      x: 0.216309
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 57
+    UvRect:
+      serializedVersion: 2
+      x: 0.324707
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 58
+    UvRect:
+      serializedVersion: 2
+      x: 0.433105
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 59
+    UvRect:
+      serializedVersion: 2
+      x: 0.541504
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 60
+    UvRect:
+      serializedVersion: 2
+      x: 0.649902
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 61
+    UvRect:
+      serializedVersion: 2
+      x: 0.758301
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 62
+    UvRect:
+      serializedVersion: 2
+      x: 0.866699
+      y: 0.587891
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 63
+    UvRect:
+      serializedVersion: 2
+      x: 0.000000
+      y: 0.466797
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 64
+    UvRect:
+      serializedVersion: 2
+      x: 0.108398
+      y: 0.466797
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 65
+    UvRect:
+      serializedVersion: 2
+      x: 0.216797
+      y: 0.466797
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  - Name: 66
+    UvRect:
+      serializedVersion: 2
+      x: 0.325195
+      y: 0.466797
+      width: 0.107422
+      height: 0.119141
+    Aspect: 1.8033
+  BlobUv:
+    serializedVersion: 2
+    x: 0.221191
+    y: 0.708984
+    width: 0.062500
+    height: 0.125000
