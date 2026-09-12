@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60b50aa539e464971ab26cf5e412b8b2, type: 3}
+  m_Name: Biome_Magic
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.BiomeItem
+  Id: 5
+  DisplayName: Astral Vault
+  Floor: {r: 0.245, g: 0.205, b: 0.325, a: 1.0}
+  Wall: {r: 0.125, g: 0.098, b: 0.175, a: 1.0}
+  DeckCount: 4
+  Clutter: 0.2
+  SpawnWeight: 1
+  Population: {fileID: 11400000, guid: 0907acae63eed1e0270b6b2a78abc1b3, type: 2}

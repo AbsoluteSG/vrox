@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a268704edc2c4febb17b59d3b3ae5c6, type: 3}
+  m_Name: Pop_Astral Vault
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.PopulationConfigItem
+  DisplayName: Astral Vault
+  MaxAlive: 12
+  IntervalMs: 2200
+  Enemies:
+  - Enemy: {fileID: 11400000, guid: 637713c55fcd91f15b682ec444e3740c, type: 2}
+    Weight: 44
+    MaxAlive: 8
+  - Enemy: {fileID: 11400000, guid: dcdb6a0b6ad8441b20959863c2219ca1, type: 2}
+    Weight: 22
+    MaxAlive: 5
+  - Enemy: {fileID: 11400000, guid: a341bc55727b4e0172d0cd8290e764c8, type: 2}
+    Weight: 16
+    MaxAlive: 4
+  - Enemy: {fileID: 11400000, guid: 181d9ed0db846e2308ddd91a2b680d20, type: 2}
+    Weight: 16
+    MaxAlive: 4
+  - Enemy: {fileID: 11400000, guid: 5b78bbd8eee97fd95c742e50193cda90, type: 2}
+    Weight: 2
+    MaxAlive: 1
