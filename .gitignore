@@ -1,0 +1,38 @@
+# ---- Unity -------------------------------------------------------------
+# Regenerated from Assets/ and ProjectSettings/ on open; huge and machine-local.
+/unity/Library/
+/unity/Temp/
+/unity/Obj/
+/unity/Logs/
+/unity/UserSettings/
+/unity/Build/
+/unity/Builds/
+/unity/MemoryCaptures/
+/unity/Recordings/
+
+# Unity regenerates these from the asmdefs; the server's own csproj is source.
+/unity/*.csproj
+/unity/*.sln
+
+# ---- .NET / SpacetimeDB module -----------------------------------------
+server/module/bin/
+server/module/obj/
+
+# ---- Local overrides ---------------------------------------------------
+# Points at one developer's cloud database.
+server/spacetime.local.json
+
+# ---- Manual backups ----------------------------------------------------
+# Kept on disk, not in history.
+/.backup-pre-urp/
+
+# ---- OS ----------------------------------------------------------------
+.DS_Store
+*.swp
+
+# ---- Licensed third-party ----------------------------------------------
+# Odin Inspector is per-seat commercial software and must not be redistributed.
+# Nothing in this project references it — no code, asmdef, scene or asset — so
+# a clone compiles without it. Reinstall from the Asset Store if you want it.
+/unity/Assets/Plugins/Sirenix/
+/unity/Assets/Plugins/Sirenix.meta
