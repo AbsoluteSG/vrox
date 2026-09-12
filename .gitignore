@@ -34,5 +34,7 @@ server/spacetime.local.json
 # Odin Inspector is per-seat commercial software and must not be redistributed.
 # Nothing in this project references it — no code, asmdef, scene or asset — so
 # a clone compiles without it. Reinstall from the Asset Store if you want it.
-/unity/Assets/Plugins/Sirenix/
-/unity/Assets/Plugins/Sirenix.meta
+# The whole folder, meta included: Sirenix is its only contents, so tracking
+# the meta alone would leave Unity warning about metadata with no asset.
+/unity/Assets/Plugins/
+/unity/Assets/Plugins.meta
