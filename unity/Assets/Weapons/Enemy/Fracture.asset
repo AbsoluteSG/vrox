@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Fracture
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 135
+  DisplayName: Fracture
+  Description: Eleven across ninety degrees. The two on the ends are the ones that kill.
+  Icon: {fileID: 0}
+  Tint: {r: 0.68, g: 0.45, b: 0.95, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 3
+  FireRateMs: 1400
+  Element: 4
+  DamageMin: 20
+  DamageMax: 28
+  ProjectileSpeed: 11.05
+  ProjectileLifetimeMs: 1629
+  ProjectileSize: 0.325
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 0
+  ReloadMs: 1200
+  ReloadPerShell: 0
+  Kickback: 0
+  MoveSpeedPercent: 100
+  Pattern:
+    rid: 415439610081457308
+  SpinDegreesPerSec: 0
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix:
+  - Element: 4
+    DamageMin: 95
+    DamageMax: 125
+    Debuff: 0
+    DebuffSeconds: 1.5
+    Speed: 10.2
+    Size: 0.6
+    LifetimeMs: 1765
+    Tint: {r: 1.0, g: 0.92, b: 0.75, a: 1.0}
+    BulletSpriteId: 22
+  - Element: 4
+    DamageMin: 12
+    DamageMax: 20
+    Debuff: 3
+    DebuffSeconds: 4.5
+    Speed: 12.75
+    Size: 0.25
+    LifetimeMs: 1412
+    Tint: {r: 0.68, g: 0.45, b: 0.95, a: 1.0}
+    BulletSpriteId: 3
+  Assignment: 2
+  BulletSpriteId: 56
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439610081457308
+      type: {class: SpreadShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Shots: 11
+        Arc: 90

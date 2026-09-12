@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dbe75ee89bfb4f85a4e2db62b3d9452, type: 3}
+  m_Name: Swiftroot Draught
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.ConsumableItem
+  Id: 4
+  DisplayName: Swiftroot Draught
+  Description: Twelve seconds of being somewhere else.
+  Icon: {fileID: 0}
+  Tint: {r: 0.4, g: 0.85, b: 0.6, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 1
+  Effect: 1
+  Magnitude: 1.4
+  DurationMs: 12000
+  CooldownMs: 20000
+  StackSize: 5

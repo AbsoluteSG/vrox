@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Sporefall
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 156
+  DisplayName: Sporefall
+  Description: Eight directions, three deep.
+  Icon: {fileID: 0}
+  Tint: {r: 0.55, g: 0.85, b: 0.3, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 3
+  FireRateMs: 900
+  Element: 3
+  DamageMin: 32
+  DamageMax: 44
+  ProjectileSpeed: 8.5
+  ProjectileLifetimeMs: 2824
+  ProjectileSize: 0.4
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 0
+  ReloadMs: 1200
+  ReloadPerShell: 0
+  Kickback: 0
+  MoveSpeedPercent: 100
+  Pattern:
+    rid: 415439639603311320
+  SpinDegreesPerSec: 45
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix: []
+  Assignment: 0
+  BulletSpriteId: 61
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439639603311320
+      type: {class: ClusterShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Directions: 8
+        PerDirection: 3
+        Arc: 14

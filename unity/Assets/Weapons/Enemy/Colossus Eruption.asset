@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Colossus Eruption
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 104
+  DisplayName: Colossus Eruption
+  Description: The floor opens in a turning wheel of fire.
+  Icon: {fileID: 0}
+  Tint: {r: 1.0, g: 0.3, b: 0.08, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 3
+  FireRateMs: 1500
+  Element: 1
+  DamageMin: 26
+  DamageMax: 36
+  ProjectileSpeed: 6.8
+  ProjectileLifetimeMs: 2059
+  ProjectileSize: 0.475
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 0
+  ReloadMs: 1200
+  ReloadPerShell: 0
+  Kickback: 0
+  MoveSpeedPercent: 100
+  Pattern:
+    rid: 415439641094269516
+  SpinDegreesPerSec: 45
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix: []
+  Assignment: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439641094269516
+      type: {class: RingShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Shots: 14

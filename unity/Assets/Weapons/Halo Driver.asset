@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Halo Driver
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 5
+  DisplayName: Halo Driver
+  Description: Throws a spinning ring outward in every direction. Aim is not the point.
+  Icon: {fileID: 0}
+  Tint: {r: 0.72, g: 0.5, b: 0.95, a: 1.0}
+  Width: 2
+  Height: 2
+  Tier: 4
+  FireRateMs: 900
+  Element: 4
+  DamageMin: 30
+  DamageMax: 44
+  ProjectileSpeed: 10.2
+  ProjectileLifetimeMs: 638
+  ProjectileSize: 0.425
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 5
+  ReloadMs: 1500
+  ReloadPerShell: 0
+  Kickback: 0.2
+  MoveSpeedPercent: 95
+  Pattern:
+    rid: 415439669551566999
+  SpinDegreesPerSec: 90
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix: []
+  Assignment: 0
+  BulletSpriteId: 4
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439669551566999
+      type: {class: RingShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Shots: 10

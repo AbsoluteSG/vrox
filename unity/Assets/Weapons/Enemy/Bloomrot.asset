@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Bloomrot
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 130
+  DisplayName: Bloomrot
+  Description: Nine across, heavy at the edges. Running around it costs more than running through.
+  Icon: {fileID: 0}
+  Tint: {r: 0.52, g: 0.8, b: 0.32, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 3
+  FireRateMs: 1000
+  Element: 3
+  DamageMin: 22
+  DamageMax: 32
+  ProjectileSpeed: 9.35
+  ProjectileLifetimeMs: 1498
+  ProjectileSize: 0.375
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 0
+  ReloadMs: 1200
+  ReloadPerShell: 0
+  Kickback: 0
+  MoveSpeedPercent: 100
+  Pattern:
+    rid: 415439623307551050
+  SpinDegreesPerSec: 0
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix:
+  - Element: 3
+    DamageMin: 85
+    DamageMax: 110
+    Debuff: 0
+    DebuffSeconds: 1.5
+    Speed: 8.5
+    Size: 0.625
+    LifetimeMs: 1647
+    Tint: {r: 0.9, g: 0.95, b: 0.45, a: 1.0}
+    BulletSpriteId: 25
+  - Element: 3
+    DamageMin: 14
+    DamageMax: 22
+    Debuff: 3
+    DebuffSeconds: 3.5
+    Speed: 11.05
+    Size: 0.275
+    LifetimeMs: 1267
+    Tint: {r: 0.52, g: 0.8, b: 0.32, a: 1.0}
+    BulletSpriteId: 8
+  Assignment: 2
+  BulletSpriteId: 16
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439623307551050
+      type: {class: SpreadShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Shots: 9
+        Arc: 70

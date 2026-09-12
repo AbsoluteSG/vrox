@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Maelstrom
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 126
+  DisplayName: Maelstrom
+  Description: Twenty arms turning fast, the outermost of each heavy enough to matter.
+  Icon: {fileID: 0}
+  Tint: {r: 0.35, g: 0.78, b: 0.85, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 3
+  FireRateMs: 700
+  Element: 2
+  DamageMin: 22
+  DamageMax: 32
+  ProjectileSpeed: 8.5
+  ProjectileLifetimeMs: 1882
+  ProjectileSize: 0.375
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 0
+  ReloadMs: 1200
+  ReloadPerShell: 0
+  Kickback: 0
+  MoveSpeedPercent: 100
+  Pattern:
+    rid: 415439694941703717
+  SpinDegreesPerSec: 150
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix:
+  - Element: 2
+    DamageMin: 70
+    DamageMax: 90
+    Debuff: 0
+    DebuffSeconds: 1.5
+    Speed: 7.65
+    Size: 0.575
+    LifetimeMs: 2092
+    Tint: {r: 0.85, g: 0.97, b: 1.0, a: 1.0}
+    BulletSpriteId: 30
+  - Element: 2
+    DamageMin: 16
+    DamageMax: 24
+    Debuff: 2
+    DebuffSeconds: 1.5
+    Speed: 10.2
+    Size: 0.3
+    LifetimeMs: 1568
+    Tint: {r: 0.35, g: 0.78, b: 0.85, a: 1.0}
+    BulletSpriteId: 7
+  Assignment: 2
+  BulletSpriteId: 48
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439694941703717
+      type: {class: RingShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Shots: 20

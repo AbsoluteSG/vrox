@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6010cb0f5bc554d0aa0359877dba0575, type: 3}
+  m_Name: Fracture Line
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
+  Id: 162
+  DisplayName: Fracture Line
+  Description: Heavy on both flanks. Walk into the middle and it takes your feet.
+  Icon: {fileID: 0}
+  Tint: {r: 0.7, g: 0.5, b: 1.0, a: 1.0}
+  Width: 1
+  Height: 1
+  Tier: 3
+  FireRateMs: 1350
+  Element: 4
+  DamageMin: 38
+  DamageMax: 50
+  ProjectileSpeed: 10.2
+  ProjectileLifetimeMs: 2549
+  ProjectileSize: 0.425
+  Debuff: 0
+  DebuffSeconds: 1.5
+  Range: 0
+  Pierce: 0
+  FalloffPercent: 100
+  SplitDamage: 0
+  Magazine: 0
+  ReloadMs: 1200
+  ReloadPerShell: 0
+  Kickback: 0
+  MoveSpeedPercent: 100
+  Pattern:
+    rid: 415439628623735773
+  SpinDegreesPerSec: 0
+  WaveAmplitude: 0
+  WaveFrequency: 2
+  Mix:
+  - Element: 4
+    DamageMin: 105
+    DamageMax: 120
+    Debuff: 0
+    DebuffSeconds: 1.5
+    Speed: 7.65
+    Size: 0.6875
+    LifetimeMs: 3138
+    Tint: {r: 0.7, g: 0.5, b: 1.0, a: 1.0}
+    BulletSpriteId: 22
+  - Element: 4
+    DamageMin: 12
+    DamageMax: 18
+    Debuff: 1
+    DebuffSeconds: 0.35
+    Speed: 10.2
+    Size: 0.325
+    LifetimeMs: 2353
+    Tint: {r: 0.9, g: 0.85, b: 1.0, a: 1.0}
+    BulletSpriteId: 3
+  Assignment: 2
+  BulletSpriteId: 49
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439628623735773
+      type: {class: SpreadShot, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Shots: 17
+        Arc: 160
