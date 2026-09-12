@@ -1612,6 +1612,7 @@ GameObject:
   - component: {fileID: 1759653046}
   - component: {fileID: 1759653048}
   - component: {fileID: 1759653047}
+  - component: {fileID: 1759653900}
   m_Layer: 0
   m_Name: Vrox
   m_TagString: Untagged
@@ -2031,3 +2032,22 @@ SceneRoots:
   - {fileID: 789257308}
   - {fileID: 2135831208}
   - {fileID: 1695661491}
+--- !u!114 &1759653900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759653034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ebe2e88193c03430b66a7e8e86699be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Vrox::Vrox.UI.VroxLootWindow
+  Items: {fileID: 11400000, guid: 51272d9c5b6be48998754b711789d6aa, type: 2}
+  ToggleKey: 43
+  OpenPackWithBag: 1
+  CellSize: 46
+  CellGap: 4
+  MarginX: 16
+  MarginY: 16
