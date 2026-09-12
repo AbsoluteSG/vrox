@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Sporeling
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 11
+  DisplayName: Sporeling
+  Tint: {r: 0.6, g: 0.85, b: 0.4, a: 1.0}
+  MaxHp: 50
+  Radius: 0.38
+  Speed: 4.5
+  Movement:
+    rid: 415439678922600461
+  Weapon: {fileID: 11400000, guid: 7e9e26148436b6426bb409809d3273bd, type: 2}
+  AttackRange: 8
+  TouchDamage: 0
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 3
+    Percent: 20
+  - Element: 1
+    Percent: 185
+  LootPools: []
+  NoDropWeight: 14
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439678922600461
+      type: {class: WanderMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Leash: 6

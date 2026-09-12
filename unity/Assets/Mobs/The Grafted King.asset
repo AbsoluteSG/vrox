@@ -1,0 +1,157 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: The Grafted King
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 23
+  DisplayName: The Grafted King
+  Tint: {r: 0.42, g: 0.7, b: 0.25, a: 1.0}
+  MaxHp: 28000
+  Radius: 2.7
+  Speed: 2.2
+  Movement:
+    rid: 415439622082880667
+  Weapon: {fileID: 0}
+  AttackRange: 0
+  TouchDamage: 0
+  IsBoss: 1
+  MaxEnergy: 280
+  Phases:
+  - Name: Procession
+    Movement:
+      rid: 415439620461444433
+    Weapon: {fileID: 11400000, guid: e70e884c9bb905feb8610fdf7319f2e5, type: 2}
+    AttackRange: 26
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439608542038689
+  - Name: Graft
+    Movement:
+      rid: 415439689400690800
+    Weapon: {fileID: 11400000, guid: 0e9a8d35bfa6d7570945c7b0a5604414, type: 2}
+    AttackRange: 26
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 2.6
+    Transition:
+      rid: 415439658753579238
+  - Name: Rootbound
+    Movement:
+      rid: 415439644528265725
+    Weapon: {fileID: 11400000, guid: 6bc4a5778bb1e8b501975ebf92ba241e, type: 2}
+    AttackRange: 26
+    Invulnerable: 1
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439600205888858
+  - Name: Blight Crown
+    Movement:
+      rid: 415439632966538497
+    Weapon: {fileID: 11400000, guid: 74d8c9e0285e60659120fb7e3c1469c5, type: 2}
+    AttackRange: 28
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 3.0
+    Transition:
+      rid: 415439652684767317
+  - Name: Sporefall
+    Movement:
+      rid: 415439681610086959
+    Weapon: {fileID: 11400000, guid: 32669c2e22db1f46dc15786680f704d0, type: 2}
+    AttackRange: 28
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 65
+    Speed: 3.4
+    Transition:
+      rid: 415439643204134850
+  - Name: Last Harvest
+    Movement:
+      rid: 415439669973817095
+    Weapon: {fileID: 11400000, guid: 646493efd4ce3bc729087a7eaf219939, type: 2}
+    AttackRange: 32
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 4.0
+    Transition:
+      rid: 415439603596552400
+  Resist:
+  - Element: 3
+    Percent: 10
+  - Element: 0
+    Percent: 80
+  - Element: 1
+    Percent: 175
+  LootPools: []
+  NoDropWeight: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439600205888858
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 5
+    - rid: 415439603596552400
+      type: {class: NeverTransition, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439608542038689
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 6
+    - rid: 415439620461444433
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 26
+    - rid: 415439622082880667
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439632966538497
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 30
+    - rid: 415439643204134850
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 24
+    - rid: 415439644528265725
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439652684767317
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 48
+    - rid: 415439658753579238
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 82
+    - rid: 415439669973817095
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 34
+    - rid: 415439681610086959
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 30
+        Radius: 5
+    - rid: 415439689400690800
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 28

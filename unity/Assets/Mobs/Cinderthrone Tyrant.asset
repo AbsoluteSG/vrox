@@ -1,0 +1,157 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Cinderthrone Tyrant
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 21
+  DisplayName: Cinderthrone Tyrant
+  Tint: {r: 1.0, g: 0.4, b: 0.12, a: 1.0}
+  MaxHp: 24000
+  Radius: 2.6
+  Speed: 1.8
+  Movement:
+    rid: 415439666098247632
+  Weapon: {fileID: 0}
+  AttackRange: 0
+  TouchDamage: 0
+  IsBoss: 1
+  MaxEnergy: 300
+  Phases:
+  - Name: Siege
+    Movement:
+      rid: 415439674895079147
+    Weapon: {fileID: 11400000, guid: 3cccfb5209836baff3c2061654e31a76, type: 2}
+    AttackRange: 32
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439613388855743
+  - Name: Furnace Bloom
+    Movement:
+      rid: 415439642059631414
+    Weapon: {fileID: 11400000, guid: 0c3f6ce4f2aecabe61f10d38d98db7be, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439698535540230
+  - Name: Molten Shell
+    Movement:
+      rid: 415439674348349035
+    Weapon: {fileID: 11400000, guid: a01ef3364ebf75bee03500ce83831edd, type: 2}
+    AttackRange: 28
+    Invulnerable: 1
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439628722653088
+  - Name: The Tyrant Walks
+    Movement:
+      rid: 415439630788500672
+    Weapon: {fileID: 11400000, guid: 8cd480f8230497630d9430212db88dfb, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 2.4
+    Transition:
+      rid: 415439612591743583
+  - Name: Ashfall
+    Movement:
+      rid: 415439648628037443
+    Weapon: {fileID: 11400000, guid: c26ec2cfebf66d7359ace2799ee87fca, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 60
+    Speed: 2.8
+    Transition:
+      rid: 415439657048990778
+  - Name: Cinder Nova
+    Movement:
+      rid: 415439695453908072
+    Weapon: {fileID: 11400000, guid: 4b82b19b4db3a067196b8e955f06dc1d, type: 2}
+    AttackRange: 32
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 3.2
+    Transition:
+      rid: 415439662117114047
+  Resist:
+  - Element: 1
+    Percent: 15
+  - Element: 0
+    Percent: 80
+  - Element: 2
+    Percent: 165
+  LootPools: []
+  NoDropWeight: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439612591743583
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 45
+    - rid: 415439613388855743
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 8
+    - rid: 415439628722653088
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 5
+    - rid: 415439630788500672
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 30
+    - rid: 415439642059631414
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439648628037443
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 1
+        NoticeRange: 30
+        Radius: 8
+    - rid: 415439657048990778
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 22
+    - rid: 415439662117114047
+      type: {class: NeverTransition, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439666098247632
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439674348349035
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439674895079147
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439695453908072
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 32
+        Radius: 6
+    - rid: 415439698535540230
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 78

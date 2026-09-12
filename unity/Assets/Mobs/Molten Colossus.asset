@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Molten Colossus
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 5
+  DisplayName: Molten Colossus
+  Tint: {r: 1.0, g: 0.35, b: 0.1, a: 1.0}
+  MaxHp: 7200
+  Radius: 1.7
+  Speed: 2.4
+  Movement:
+    rid: 415439694620588605
+  Weapon: {fileID: 0}
+  AttackRange: 0
+  TouchDamage: 0
+  IsBoss: 1
+  MaxEnergy: 100
+  Phases:
+  - Name: Standing Furnace
+    Movement:
+      rid: 415439602413188970
+    Weapon: {fileID: 11400000, guid: b82fd8e2046782902f29d0ea6fcd59cc, type: 2}
+    AttackRange: 26
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439699925005356
+  - Name: Wheel of Ash
+    Movement:
+      rid: 415439630332356899
+    Weapon: {fileID: 11400000, guid: 3a859bbb1480fde7e4453c540fc3fd22, type: 2}
+    AttackRange: 28
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 3.0
+    Transition:
+      rid: 415439653631260391
+  - Name: Last Ember
+    Movement:
+      rid: 415439603380779290
+    Weapon: {fileID: 11400000, guid: 7daba6bd8188475f183ecb8970686a58, type: 2}
+    AttackRange: 22
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 4.2
+    Transition:
+      rid: 415439621002435901
+  Resist:
+  - Element: 1
+    Percent: 20
+  - Element: 0
+    Percent: 80
+  - Element: 2
+    Percent: 175
+  LootPools: []
+  NoDropWeight: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439602413188970
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439603380779290
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 26
+    - rid: 415439621002435901
+      type: {class: NeverTransition, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439630332356899
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 1
+        NoticeRange: 24
+        Radius: 6
+    - rid: 415439653631260391
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 20
+    - rid: 415439694620588605
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439699925005356
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 5

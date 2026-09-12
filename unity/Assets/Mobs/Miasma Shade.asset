@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Miasma Shade
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 14
+  DisplayName: Miasma Shade
+  Tint: {r: 0.5, g: 0.7, b: 0.5, a: 1.0}
+  MaxHp: 170
+  Radius: 0.55
+  Speed: 5.0
+  Movement:
+    rid: 415439621027680529
+  Weapon: {fileID: 11400000, guid: 6cab4b4573aed4adf17dddbc3bbbd11c, type: 2}
+  AttackRange: 11
+  TouchDamage: 0
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 0
+    Percent: 130
+  - Element: 3
+    Percent: 25
+  - Element: 4
+    Percent: 70
+  LootPools: []
+  NoDropWeight: 6
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439621027680529
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 15
+        Radius: 6

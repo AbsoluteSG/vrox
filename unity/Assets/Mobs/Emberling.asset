@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Emberling
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 2
+  DisplayName: Emberling
+  Tint: {r: 0.95, g: 0.45, b: 0.2, a: 1.0}
+  MaxHp: 90
+  Radius: 0.5
+  Speed: 5.0
+  Movement:
+    rid: 415439678600761812
+  Weapon: {fileID: 11400000, guid: 616af5a996bdb0dc901aaa647f961d17, type: 2}
+  AttackRange: 9
+  TouchDamage: 6
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 1
+    Percent: 45
+  - Element: 2
+    Percent: 155
+  LootPools: []
+  NoDropWeight: 11
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439678600761812
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 14

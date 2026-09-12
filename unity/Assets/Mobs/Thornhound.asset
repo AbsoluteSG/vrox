@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Thornhound
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 12
+  DisplayName: Thornhound
+  Tint: {r: 0.45, g: 0.6, b: 0.25, a: 1.0}
+  MaxHp: 110
+  Radius: 0.5
+  Speed: 8.5
+  Movement:
+    rid: 415439654627722216
+  Weapon: {fileID: 11400000, guid: 6cab4b4573aed4adf17dddbc3bbbd11c, type: 2}
+  AttackRange: 7
+  TouchDamage: 9
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 3
+    Percent: 30
+  - Element: 1
+    Percent: 170
+  LootPools: []
+  NoDropWeight: 11
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439654627722216
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 16

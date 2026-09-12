@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Pyre Warden
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 4
+  DisplayName: Pyre Warden
+  Tint: {r: 1.0, g: 0.75, b: 0.35, a: 1.0}
+  MaxHp: 210
+  Radius: 0.65
+  Speed: 4.0
+  Movement:
+    rid: 415439681205702079
+  Weapon: {fileID: 11400000, guid: e8e187720d36f29325f81a64e2c6aea1, type: 2}
+  AttackRange: 12
+  TouchDamage: 0
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 1
+    Percent: 30
+  - Element: 4
+    Percent: 130
+  LootPools: []
+  NoDropWeight: 6
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439681205702079
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 16
+        Radius: 7

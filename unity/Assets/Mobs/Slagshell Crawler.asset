@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Slagshell Crawler
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 3
+  DisplayName: Slagshell Crawler
+  Tint: {r: 0.6, g: 0.28, b: 0.16, a: 1.0}
+  MaxHp: 320
+  Radius: 0.8
+  Speed: 2.2
+  Movement:
+    rid: 415439679390734716
+  Weapon: {fileID: 11400000, guid: a4a23b9f9ea68fffcff3cade870f7f89, type: 2}
+  AttackRange: 8
+  TouchDamage: 10
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 0
+    Percent: 65
+  - Element: 1
+    Percent: 25
+  - Element: 2
+    Percent: 180
+  LootPools: []
+  NoDropWeight: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439679390734716
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 11

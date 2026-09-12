@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Rotbark Treant
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 13
+  DisplayName: Rotbark Treant
+  Tint: {r: 0.38, g: 0.42, b: 0.22, a: 1.0}
+  MaxHp: 520
+  Radius: 1.1
+  Speed: 1.6
+  Movement:
+    rid: 415439668297671663
+  Weapon: {fileID: 11400000, guid: 1bdf4247ce527a956bc936984b74c229, type: 2}
+  AttackRange: 8
+  TouchDamage: 16
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist:
+  - Element: 0
+    Percent: 50
+  - Element: 3
+    Percent: 15
+  - Element: 1
+    Percent: 200
+  LootPools: []
+  NoDropWeight: 7
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439668297671663
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 9

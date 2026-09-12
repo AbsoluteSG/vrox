@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Abyssal Maw
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 10
+  DisplayName: Abyssal Maw
+  Tint: {r: 0.15, g: 0.4, b: 0.6, a: 1.0}
+  MaxHp: 8600
+  Radius: 1.9
+  Speed: 2.0
+  Movement:
+    rid: 415439682000384161
+  Weapon: {fileID: 0}
+  AttackRange: 0
+  TouchDamage: 0
+  IsBoss: 1
+  MaxEnergy: 150
+  Phases:
+  - Name: Rising Tide
+    Movement:
+      rid: 415439634535202529
+    Weapon: {fileID: 11400000, guid: fa390ca723ac6d053be7123d3b4e056f, type: 2}
+    AttackRange: 26
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439682606186454
+  - Name: Whirlpool
+    Movement:
+      rid: 415439608152106032
+    Weapon: {fileID: 11400000, guid: e4cc0941b2ba5f8ec097aa6b6fb067cb, type: 2}
+    AttackRange: 28
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 60
+    Speed: 2.8
+    Transition:
+      rid: 415439649545030794
+  - Name: Submerged
+    Movement:
+      rid: 415439697038716948
+    Weapon: {fileID: 11400000, guid: eeb9961d0cfad0537e6cd2209b0b0973, type: 2}
+    AttackRange: 26
+    Invulnerable: 0
+    Untargetable: 1
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439638085681898
+  - Name: Maelstrom
+    Movement:
+      rid: 415439620068690244
+    Weapon: {fileID: 11400000, guid: b96142301b0b0360b22fee0b5b2f26a8, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 3.2
+    Transition:
+      rid: 415439696810315037
+  Resist:
+  - Element: 2
+    Percent: 20
+  - Element: 0
+    Percent: 85
+  - Element: 1
+    Percent: 160
+  LootPools: []
+  NoDropWeight: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439608152106032
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 1
+        NoticeRange: 24
+        Radius: 5
+    - rid: 415439620068690244
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 28
+        Radius: 7
+    - rid: 415439634535202529
+      type: {class: KeepDistanceMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 26
+        Range: 10
+    - rid: 415439638085681898
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 5
+    - rid: 415439649545030794
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 55
+    - rid: 415439682000384161
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439682606186454
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 8
+    - rid: 415439696810315037
+      type: {class: NeverTransition, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439697038716948
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 

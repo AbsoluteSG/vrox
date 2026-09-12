@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Null Archon
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 24
+  DisplayName: Null Archon
+  Tint: {r: 0.78, g: 0.62, b: 1.0, a: 1.0}
+  MaxHp: 30000
+  Radius: 3.0
+  Speed: 2.0
+  Movement:
+    rid: 415439601500828738
+  Weapon: {fileID: 0}
+  AttackRange: 0
+  TouchDamage: 0
+  IsBoss: 1
+  MaxEnergy: 400
+  Phases:
+  - Name: Axiom
+    Movement:
+      rid: 415439682542568052
+    Weapon: {fileID: 11400000, guid: 8e43f29cfa3a5b8a44e2d17ef860e719, type: 2}
+    AttackRange: 32
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439689466914946
+  - Name: Lattice
+    Movement:
+      rid: 415439627440157458
+    Weapon: {fileID: 11400000, guid: 92474dbf2c17e046ae1c00c359cb0531, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439609911307384
+  - Name: Refraction
+    Movement:
+      rid: 415439653372158599
+    Weapon: {fileID: 11400000, guid: f230f0b0dab99d8e0dd1178233d7ceee, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 40
+    Speed: 2.6
+    Transition:
+      rid: 415439694274342117
+  - Name: Null Field
+    Movement:
+      rid: 415439608913535561
+    Weapon: {fileID: 11400000, guid: 9946ae3615b18d268f23e5bd602208c4, type: 2}
+    AttackRange: 28
+    Invulnerable: 0
+    Untargetable: 1
+    DamageTakenPercent: 100
+    Speed: 0
+    Transition:
+      rid: 415439652102595559
+  - Name: Fracture
+    Movement:
+      rid: 415439651415890299
+    Weapon: {fileID: 11400000, guid: 18a599c756600f58496671123e275967, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 2.8
+    Transition:
+      rid: 415439643383721892
+  - Name: Collapse
+    Movement:
+      rid: 415439657023552922
+    Weapon: {fileID: 11400000, guid: 793d50333144b7d3b2111fdf1ef1657d, type: 2}
+    AttackRange: 32
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 3.2
+    Transition:
+      rid: 415439627088204677
+  Resist:
+  - Element: 4
+    Percent: 10
+  - Element: 0
+    Percent: 75
+  - Element: 2
+    Percent: 150
+  LootPools: []
+  NoDropWeight: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 415439601500828738
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439608913535561
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439609911307384
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 85
+    - rid: 415439627088204677
+      type: {class: NeverTransition, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439627440157458
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439643383721892
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 28
+    - rid: 415439651415890299
+      type: {class: KeepDistanceMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 30
+        Range: 9
+    - rid: 415439652102595559
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 6
+    - rid: 415439653372158599
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 1
+        NoticeRange: 30
+        Radius: 9
+    - rid: 415439657023552922
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 32
+        Radius: 7
+    - rid: 415439682542568052
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 
+    - rid: 415439689466914946
+      type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Seconds: 5
+    - rid: 415439694274342117
+      type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Percent: 60
