@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2d6d9a8d9ab44c5582fc491615ec47a, type: 3}
-  m_Name: LootPool
+  m_Name: Pool_Scraps
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.LootPoolItem
   Id: 1
   Bag: 0
   Items:
-  - Item: {fileID: 11400000, guid: 8f0e75320181dc94f0572745e8410bbf, type: 2}
-    ChancePercent: 25
+  - Item: {fileID: 11400000, guid: 3e1fd90ffb874b3ff018404e23ad190e, type: 2}
+    ChancePercent: 40
     Count: 1
-  - Item: {fileID: 11400000, guid: 339c40c1c0d6341af8622b9cc7516898, type: 2}
-    ChancePercent: 25
-    Count: 1
+  - Item: {fileID: 11400000, guid: a83dd64da42d7f0f95f4b7f1b8ee7722, type: 2}
+    ChancePercent: 30
+    Count: 2

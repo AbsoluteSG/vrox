@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2d6d9a8d9ab44c5582fc491615ec47a, type: 3}
+  m_Name: Pool_Champion
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.LootPoolItem
+  Id: 6
+  Bag: 3
+  Items:
+  - Item: {fileID: 11400000, guid: 2df4873bbee6fd34f74f5aa4c131bb54, type: 2}
+    ChancePercent: 10
+    Count: 1
+  - Item: {fileID: 11400000, guid: 0215c9771d2e73b17fa20cc52a9f8084, type: 2}
+    ChancePercent: 10
+    Count: 1
+  - Item: {fileID: 11400000, guid: 4edb0c3cd5d1e7cf9b9e598903ba0cd9, type: 2}
+    ChancePercent: 12
+    Count: 1
+  - Item: {fileID: 11400000, guid: 1b3f96f23ec3b04c80c6ea05d5ee0f3f, type: 2}
+    ChancePercent: 10
+    Count: 1
+  - Item: {fileID: 11400000, guid: 2013f242bcc84b420553fd5f05a96c84, type: 2}
+    ChancePercent: 72
+    Count: 1

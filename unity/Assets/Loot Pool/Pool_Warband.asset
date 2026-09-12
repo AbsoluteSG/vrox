@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2d6d9a8d9ab44c5582fc491615ec47a, type: 3}
+  m_Name: Pool_Warband
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.LootPoolItem
+  Id: 5
+  Bag: 2
+  Items:
+  - Item: {fileID: 11400000, guid: 5dd0d2501afc5a720d200a0087f92091, type: 2}
+    ChancePercent: 14
+    Count: 1
+  - Item: {fileID: 11400000, guid: 6c5646acc1a81c68cc5116c8101b825b, type: 2}
+    ChancePercent: 14
+    Count: 1
+  - Item: {fileID: 11400000, guid: 172990e57f5a6779583c31831b20a82f, type: 2}
+    ChancePercent: 10
+    Count: 1
+  - Item: {fileID: 11400000, guid: 484d313c40a6f6c9ccaf41db0fd250fc, type: 2}
+    ChancePercent: 70
+    Count: 2
+  - Item: {fileID: 11400000, guid: 6469c25220d943933bad2fcbbe3fcc3c, type: 2}
+    ChancePercent: 25
+    Count: 1
