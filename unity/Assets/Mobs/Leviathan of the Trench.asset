@@ -99,7 +99,13 @@ MonoBehaviour:
     Percent: 85
   - Element: 1
     Percent: 160
-  LootPools: []
+  LootPools:
+  - Pool: {fileID: 11400000, guid: 4d040765efdb3b0d66075066827e16f2, type: 2}
+    Weight: 4
+  - Pool: {fileID: 11400000, guid: 9c7baeac7bfabfba2e8d1dc49fd07a03, type: 2}
+    Weight: 4
+  - Pool: {fileID: 11400000, guid: d0aa382e0dfcc89df698a3c16d6290e0, type: 2}
+    Weight: 2
   NoDropWeight: 0
   references:
     version: 2
