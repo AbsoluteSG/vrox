@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Talk to a running Vrox server from the terminal.
+#
+# Everything here goes through the `spacetime` CLI, so this is a convenience over
+# the real interface rather than a second way in — there is no state here and
+# nothing it can tell you that the database would not.
+set -euo pipefail
+
+SERVER="${VROX_SERVER:-local}"
+DB="${VROX_DB:-vrox}"
+
+sql()  { spacetime sql  -s "$SERVER" "$DB" "$1" 2>/dev/null; }
+# Failures are surfaced, not swallowed. An earlier version ended in `|| true` to
+# stop grep's "no matches" exit code from tripping `set -e`, and that also hid
+# reducers that threw — so a benchmark ran happily against a module that had
+# never published.
+call() {
+  local out status
+  out=$(spacetime call -s "$SERVER" "$DB" "$@" 2>&1); status=$?
+  printf '%s\n' "$out" | grep -v '^WARNING' | grep -v '^$' || true
+  if [ $status -ne 0 ]; then
+    echo "vrox: reducer call failed: $*" >&2
+    return $status
+  fi
+}
+
+# First data row of a query, fields separated by spaces. `spacetime sql` prints a
+# header, a rule, then rows — and pads with spaces around every "|", so the
+# column count is not the field count until the bars are gone.
+row() { sql "$1" | awk -F'|' 'NR>2 && NF {for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i)}; print; exit}'; }
+
+usage() {
+  cat <<'USAGE'
+vrox — a terminal client for the Vrox server
+
+  vrox stat                     counts of everything live
+  vrox tick                     world-tick timing (last / avg / max)
+  vrox watch [seconds]          re-print tick timing until interrupted
+  vrox bench <count> [defId] [intervalMs]
+                                spawn enemies, drive the tick at intervalMs
+                                (default 5) and report whether it kept up
+
+  vrox spawn <count> [defId] [x] [y] [radius]
+  vrox clear                    remove every live enemy
+  vrox enemies|players|items|pools|bags   list rows
+  vrox logs [n]                 tail the server log
+  vrox sql "<query>"            raw query
+  vrox call <reducer> [args...] raw reducer call
+
+Environment: VROX_SERVER (default "local"), VROX_DB (default "vrox").
+USAGE
+}
+
+case "${1:-}" in
+  stat)
+    printf '%-10s %s\n' \
+      players "$(row 'SELECT COUNT(*) AS n FROM player')" \
+      enemies "$(row 'SELECT COUNT(*) AS n FROM enemy')" \
+      shots   "$(row 'SELECT COUNT(*) AS n FROM shot')" \
+      bags    "$(row 'SELECT COUNT(*) AS n FROM loot_drop')" \
+      items   "$(row 'SELECT COUNT(*) AS n FROM item_def')" \
+      pools   "$(row 'SELECT COUNT(*) AS n FROM loot_pool_def')"
+    ;;
+
+  tick)
+    # Intervals between ticks, not tick durations — a module has no clock. See
+    # SetTickInterval in Module.cs for why that still answers the question.
+    sql 'SELECT last_micros, max_micros, ticks, total_micros, enemies, active, shots, players FROM tick_metric' \
+      | awk -F'|' 'NR>2 && NF {
+          for (i=1;i<=NF;i++) gsub(/^ +| +$/,"",$i);
+          n=$3+0;
+          if (n==0) { print "no ticks recorded yet"; exit }
+          printf "interval  last %.2f ms   avg %.2f ms   max %.2f ms   over %d ticks\n",
+                 $1/1000, ($4/n)/1000, $2/1000, n;
+          printf "carrying  %s enemies (%s simulated), %s shots, %s players\n", $5, $6, $7, $8;
+        }'
+    ;;
+
+  watch)
+    while true; do "$0" tick; sleep "${2:-1}"; done
+    ;;
+
+  bench)
+    count="${2:?usage: vrox bench <count> [defId]}"
+    def="${3:-1}"
+    # Spawned around the first player, or the map centre when nobody is on. An
+    # enemy far from every player is dormant, and benchmarking dormant enemies
+    # measures the skip rather than the work.
+    pos=$(sql 'SELECT x, y FROM player' | sed -n '4p' | tr -d ' ' | tr '|' ' ')
+    x=$(echo "$pos" | awk '{print ($1=="" ? 64 : $1)}')
+    y=$(echo "$pos" | awk '{print ($2=="" ? 64 : $2)}')
+    interval="${4:-5}"
+    echo "spawning $count of def $def around ($x, $y)"
+    call spawn_enemies "$def" "$count" "$x" "$y" 12 >/dev/null
+
+    # Asking for a tick every ${interval}ms. If the work fits, the measured
+    # intervals stay there; if it does not, they stretch to however long the tick
+    # actually takes. That is the whole measurement.
+    echo "asking for a tick every ${interval}ms (the world runs fast while this runs)"
+    call set_tick_interval "$interval" >/dev/null
+    call reset_tick_metrics >/dev/null
+    sleep 10
+    "$0" tick
+    echo "restoring 50ms"
+    call set_tick_interval 50 >/dev/null
+    call reset_tick_metrics >/dev/null
+    ;;
+
+  spawn)
+    call spawn_enemies "${3:-1}" "${2:?usage: vrox spawn <count> [defId] [x] [y] [radius]}" \
+         "${4:-64}" "${5:-64}" "${6:-12}"
+    ;;
+
+  clear)    call clear_enemies ;;
+  enemies)  sql 'SELECT id, def_id, x, y, hp FROM enemy' ;;
+  players)  sql 'SELECT identity, name, x, y, hp, online FROM player' ;;
+  items)    sql 'SELECT id, name, kind, tier FROM item_def' ;;
+  pools)    sql 'SELECT id, name, bag_kind FROM loot_pool_def' ;;
+  bags)     sql 'SELECT id, bag_kind, x, y FROM loot_drop' ;;
+  logs)     spacetime logs -s "$SERVER" "$DB" 2>/dev/null | tail -"${2:-30}" ;;
+  sql)      sql "${2:?usage: vrox sql \"<query>\"}" ;;
+  call)     shift; call "$@" ;;
+  ""|-h|--help|help) usage ;;
+  *) echo "unknown command: $1" >&2; usage; exit 1 ;;
+esac

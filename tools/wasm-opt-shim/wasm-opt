@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Shim that makes the SpacetimeDB CLI's wasm-opt step work.
+#
+# The CLI (2.10.0) invokes:
+#     wasm-opt -all -g -O2 <in> -o <out>
+#
+# `-all` enables every post-MVP WebAssembly proposal. Binaryen 132 then emits a
+# module the SpacetimeDB host cannot parse, and `spacetime build`, `generate` and
+# `publish` all fail with:
+#
+#     failed to parse WebAssembly module: invalid leading byte (0x7f) for
+#     external kind (at offset 0xdc)
+#
+# We swap `-all` for the conservative feature set rustc actually needs. The
+# optimisation itself is worth keeping: it takes the module from ~380 KB to
+# ~229 KB. Delete this shim once the CLI stops passing `-all`.
+set -euo pipefail
+
+REAL=""
+for candidate in /opt/homebrew/bin/wasm-opt /usr/local/bin/wasm-opt /usr/bin/wasm-opt; do
+  [ -x "$candidate" ] && REAL="$candidate" && break
+done
+if [ -z "$REAL" ]; then
+  echo "wasm-opt-shim: no real wasm-opt found (brew install binaryen)" >&2
+  exit 127
+fi
+
+args=()
+for a in "$@"; do
+  if [ "$a" = "-all" ]; then
+    args+=(--mvp-features --enable-sign-ext --enable-bulk-memory
+           --enable-mutable-globals --enable-nontrapping-float-to-int)
+  else
+    args+=("$a")
+  fi
+done
+
+exec "$REAL" "${args[@]}"
