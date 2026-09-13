@@ -23,7 +23,7 @@ namespace Vrox.Equipment
         public Sprite? Sprite;
 
         [Header("Body")]
-        [Range(1, 10000)]
+        [Range(1, 100000000)]
         public ushort MaxHp = 50;
 
         [Tooltip("Collision radius in tiles. Also its drawn size, so what you see is what you hit.")]
