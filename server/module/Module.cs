@@ -4630,6 +4630,9 @@ public static partial class Module
     ///
     /// An enemy with no rows at all drops nothing, which is the right default —
     /// it is also what every enemy authored before loot existed will do.
+    ///
+    /// Mirrored by <c>LootMath.RollPool</c> on the client, which the editor's loot
+    /// simulator runs. Change both.
     /// </remarks>
     private static ushort RollPool(ReducerContext ctx, ushort enemyDefId)
     {
@@ -4924,6 +4927,10 @@ public static partial class Module
     /// take has to leave the remainder where it was. Silently dropping the
     /// overflow would destroy loot on a full pack, and the player could not tell
     /// that from a bad drop roll.
+    ///
+    /// Mirrored for the pack, with <c>FitsAt</c>, <c>FindSpot</c> and
+    /// <c>TakeAllFromBag</c>, by <c>LootMath</c> on the client for the editor's
+    /// loot simulator. Change both.
     /// </remarks>
     private static ushort PutIn(ReducerContext ctx, List<GridItem> items, byte container,
                                 ushort itemId, ushort count)
@@ -6050,6 +6057,10 @@ public static partial class Module
         // outcome including "nothing", so the entries are directly comparable:
         // a pool with weight 1 against a no-drop weight of 9 drops one time in
         // ten, and that stays true however many other pools are added.
+        //
+        // This pick and the entry loop below are mirrored, random draws in the same
+        // order, by LootMath.RollPool and LootMath.RollEntries for the editor's loot
+        // simulator. Change both.
         ushort poolId = RollPool(ctx, def.Id);
         byte bagKind = 0;
 
