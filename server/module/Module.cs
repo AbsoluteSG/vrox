@@ -2259,6 +2259,9 @@ public static partial class Module
     ///
     /// The distinction that does matter is what happens with no target in range,
     /// and each behaviour answers that for itself rather than sharing a fallback.
+    ///
+    /// Mirrored by <c>EnemyMath.MoveDirection</c> on the client, which the
+    /// editor's enemy designer runs. Change both.
     /// </remarks>
     private static (float x, float y) MoveEnemy(Enemy enemy, PhaseDef def, float time,
                                                 bool hasTarget, float targetX, float targetY)
@@ -2343,8 +2346,9 @@ public static partial class Module
     /// <remarks>
     /// Derived from the enemy's own phase and the clock rather than stored state,
     /// so it needs no extra columns and every enemy of an archetype moves
-    /// differently. Trigonometry is fine here: nothing predicts enemy movement,
-    /// so there is no second implementation to agree with.
+    /// differently. Trigonometry is fine here: no client predicts enemy movement
+    /// at runtime. The editor's enemy designer does run a copy,
+    /// <c>EnemyMath.WanderDirection</c>, so a change here is a change there.
     /// </remarks>
     private static (float x, float y) WanderDirection(Enemy enemy, PhaseDef def, float time)
     {
@@ -3357,6 +3361,9 @@ public static partial class Module
     /// The shot timer is reset on entry. Without it a boss that has just switched
     /// to a slow weapon still fires immediately on the fast weapon's schedule,
     /// and the transition reads as a stutter rather than a change.
+    ///
+    /// The leave condition is mirrored by <c>EnemyMath.LeavesPhase</c> on the
+    /// client, for the editor's enemy designer. Change both.
     /// </remarks>
     private static void AdvancePhase(ReducerContext ctx, ref Enemy enemy, EnemyDef def,
                                      PhaseDef phase)
