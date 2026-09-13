@@ -49,9 +49,9 @@ namespace Vrox.Equipment
         [Range(1, 8)]
         public byte Height = 1;
 
-        [Tooltip("Rarity band. 0 is common. A dropped bag takes the highest tier it " +
-                 "contains, which is what colours it — and what will decide who may " +
-                 "open it.")]
+        [Tooltip("Rarity band. 0 is common. Colours this item's tile in bags and the " +
+                 "inventory. It does not decide a bag's kind: that comes from the loot " +
+                 "pool the bag dropped from.")]
         [Range(0, 5)]
         public byte Tier;
 

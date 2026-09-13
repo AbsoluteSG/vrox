@@ -1319,9 +1319,10 @@ public static partial class Module
         /// Rarity band. 0 is common.
         /// </summary>
         /// <remarks>
-        /// A bag takes the highest tier it contains, which is what a bag's colour
-        /// is drawn from — and what a later rule restricting who may open one will
-        /// be based on. It is authored per item rather than derived from stats,
+        /// Colours the item's tile wherever it is drawn. It does not decide a bag's
+        /// kind — <c>LootDrop.BagKind</c> comes from the pool that rolled it, in
+        /// <c>RecordKill</c> — though a later rule restricting who may open a bag
+        /// could be based on the tiers inside it. It is authored per item rather than derived from stats,
         /// because "how rare is this" and "how strong is this" are different
         /// questions and a strong common is a thing a designer should be able to
         /// make.
