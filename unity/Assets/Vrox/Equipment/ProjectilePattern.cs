@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vrox.Equipment
@@ -54,8 +53,8 @@ namespace Vrox.Equipment
     /// Subclasses exist for authoring, not for behaviour: each one is a friendlier
     /// way to fill in <see cref="Kind"/>, <see cref="Count"/> and
     /// <see cref="SpreadDegrees"/>, which is all that travels to the server.
-    /// <see cref="Angles"/> is the same maths the module runs, kept here so the
-    /// inspector can draw a preview of the volley.
+    /// Where those numbers put each projectile is <see cref="VolleyMath.Place"/>,
+    /// the client's copy of the module's maths, which the weapon preview draws.
     ///
     /// Marked <c>[SerializeReference]</c> where it is used, so the concrete type
     /// is chosen per weapon and survives serialisation.
@@ -80,77 +79,6 @@ namespace Vrox.Equipment
         /// editor. 0 means "not a grouped pattern", which every other kind is.
         /// </remarks>
         public virtual byte Groups => 0;
-
-        /// <summary>
-        /// Angle offsets from the aim direction, in degrees.
-        /// </summary>
-        /// <remarks>
-        /// Shared with the module by construction rather than by discipline: this
-        /// is the reference implementation and the module mirrors it. If the two
-        /// ever disagree, the server wins and the client draws bullets that are
-        /// not where they are.
-        /// </remarks>
-        public static IEnumerable<float> Angles(PatternKind kind, byte count,
-                                                float spreadDegrees, byte groups = 0)
-        {
-            int n = count < 1 ? 1 : count;
-
-            switch (kind)
-            {
-                case PatternKind.Cluster:
-                {
-                    int g = groups < 1 ? 1 : groups;
-                    if (g > n)
-                    {
-                        g = n;
-                    }
-                    int per = n / g;
-                    int spare = n - per * g;
-                    for (int d = 0; d < g; d++)
-                    {
-                        float baseDeg = 360f * d / g;
-                        int here = per + (d < spare ? 1 : 0);
-                        for (int j = 0; j < here; j++)
-                        {
-                            yield return baseDeg + (here == 1
-                                ? 0f
-                                : -spreadDegrees * 0.5f + spreadDegrees * j / (here - 1));
-                        }
-                    }
-                    break;
-                }
-
-                case PatternKind.Ring:
-                    for (int i = 0; i < n; i++)
-                    {
-                        yield return 360f * i / n;
-                    }
-                    break;
-
-                case PatternKind.Spread:
-                    if (n == 1)
-                    {
-                        yield return 0f;
-                        break;
-                    }
-                    // Centred on the aim: with an even count nothing travels
-                    // straight ahead, which is what makes a shotgun feel like one.
-                    for (int i = 0; i < n; i++)
-                    {
-                        yield return -spreadDegrees * 0.5f + spreadDegrees * i / (n - 1);
-                    }
-                    break;
-
-                default:
-                    for (int i = 0; i < n; i++)
-                    {
-                        yield return 0f;
-                    }
-                    break;
-            }
-        }
-
-        public IEnumerable<float> Angles() => Angles(Kind, Count, SpreadDegrees, Groups);
     }
 
     /// <summary>One projectile, straight ahead.</summary>

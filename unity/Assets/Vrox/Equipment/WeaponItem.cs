@@ -173,20 +173,12 @@ namespace Vrox.Equipment
         /// Which variant fills a slot. Mirrors the server's <c>ProfileFor</c>.
         /// </summary>
         /// <remarks>
-        /// A mirror, like <see cref="ProjectilePattern.Angles"/> is of the server's
-        /// placement maths — and with the same rule: if the two disagree, the
-        /// server is right and this inspector is lying.
+        /// Goes through <see cref="VolleyMath.VariantIndex"/>, the one client copy
+        /// of that maths, and with its rule: if the two disagree, the server is
+        /// right and this inspector is lying.
         /// </remarks>
-        public BulletVariant VariantAt(int slot)
-        {
-            if (Assignment == SlotAssignment.Block)
-            {
-                int n = Shots > 0 ? Shots : 1;
-                int index = slot * Mix.Count / n;
-                return Mix[index >= Mix.Count ? Mix.Count - 1 : index];
-            }
-            return Mix[slot % Mix.Count];
-        }
+        public BulletVariant VariantAt(int slot) =>
+            Mix[VolleyMath.VariantIndex(Assignment, slot, Shots, Mix.Count, PatternGroups)];
 
         /// <summary>True when the pattern needs a wave but the weapon has none.</summary>
         public bool HelixWithoutWave => Pattern is HelixShot && WaveAmplitude <= 0f;

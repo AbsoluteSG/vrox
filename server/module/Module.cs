@@ -3982,9 +3982,9 @@ public static partial class Module
     /// its wave. A helix is not a special path — it is several waving shots whose
     /// phases are spread evenly, so they braid around each other.
     ///
-    /// Mirrored by <c>ProjectilePattern</c> on the client, which draws the same
-    /// volley in the inspector. If the two disagree the server wins, and the
-    /// client draws bullets that are not where it thinks they are.
+    /// Mirrored by <c>VolleyMath.Place</c> on the client, which the editor's weapon
+    /// preview draws. If the two disagree the server wins, and the preview shows a
+    /// pattern the weapon does not fire.
     /// </remarks>
     private static IEnumerable<Placement> PlaceShots(byte kind, byte count, float spread,
                                                     byte groups = 0)
@@ -4088,6 +4088,8 @@ public static partial class Module
     /// Both assignments are arithmetic over the slot count rather than a stored
     /// per-slot table, so changing a weapon's shot count can never leave the
     /// assignment half-updated and firing the wrong bullets.
+    ///
+    /// Mirrored by <c>VolleyMath.VariantIndex</c> on the client. Change both.
     /// </remarks>
     private static BulletProfile ProfileFor(WeaponDef weapon, int slot, byte shots)
     {

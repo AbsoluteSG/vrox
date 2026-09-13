@@ -254,7 +254,7 @@ namespace Vrox
         /// Where a shot is, <paramref name="t"/> seconds after it was fired.
         /// </summary>
         /// <remarks>
-        /// The single definition of a projectile's path on the client, called once
+        /// The game's entry to the projectile path on the client, called once
         /// for the bullet and once per streak sample. It has to agree with the
         /// server's own evaluation — that is what makes the thing you see the
         /// thing that collides — so if one changes, both change.
@@ -265,25 +265,12 @@ namespace Vrox
         /// is also what lets one volley contain several kinds of bullet: the
         /// weapon is asked once, at spawn.
         /// </remarks>
-        private static Vector2 PositionAt(SpacetimeDB.Types.Shot shot, float t)
-        {
-            float x = shot.OriginX + shot.DirX * shot.Speed * t;
-            float y = shot.OriginY + shot.DirY * shot.Speed * t;
-
-            // Still a function of time: the row is never updated, the path is just
-            // no longer a straight one. Sideways displacement is applied
-            // perpendicular to travel, so the wave follows the shot's heading
-            // rather than the world axes.
-            if (shot.WaveAmplitude != 0f)
-            {
-                float lateral = shot.WaveAmplitude *
-                    Mathf.Sin(t * shot.WaveFrequency * Mathf.PI * 2f + shot.WavePhase);
-                x += -shot.DirY * lateral;
-                y += shot.DirX * lateral;
-            }
-
-            return new Vector2(x, y);
-        }
+        // The maths itself is Equipment.VolleyMath.PositionAt, shared with the
+        // editor's weapon preview so the two can never draw different paths.
+        private static Vector2 PositionAt(SpacetimeDB.Types.Shot shot, float t) =>
+            Equipment.VolleyMath.PositionAt(
+                new Vector2(shot.OriginX, shot.OriginY), new Vector2(shot.DirX, shot.DirY),
+                shot.Speed, shot.WaveAmplitude, shot.WaveFrequency, shot.WavePhase, t);
 
         /// <summary>
         /// The streak behind a bullet: the same path, sampled backwards in time.
