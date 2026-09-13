@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.WeaponItem
   Id: 1
   DisplayName: Sidewinder
-  Description: A tradesman's sidearm. Nothing it does is remarkable and nothing it does is wrong.
+  Description: A tradesman's sidearm. Nothing it does is remarkable and nothing it
+    does is wrong.
   Icon: {fileID: 0}
-  Tint: {r: 0.85, g: 0.86, b: 0.9, a: 1.0}
+  Tint: {r: 0.85, g: 0.86, b: 0.9, a: 1}
   Width: 2
   Height: 1
   Tier: 1
@@ -24,8 +25,8 @@ MonoBehaviour:
   Element: 0
   DamageMin: 34
   DamageMax: 52
-  ProjectileSpeed: 22.1
-  ProjectileLifetimeMs: 679
+  ProjectileSpeed: 12
+  ProjectileLifetimeMs: 650
   ProjectileSize: 0.325
   Debuff: 0
   DebuffSeconds: 1.5
@@ -33,10 +34,10 @@ MonoBehaviour:
   Pierce: 0
   FalloffPercent: 100
   SplitDamage: 0
-  Magazine: 14
+  Magazine: 24
   ReloadMs: 900
   ReloadPerShell: 0
-  Kickback: 0
+  Kickback: 0.34
   MoveSpeedPercent: 100
   Pattern:
     rid: 415439623474993470

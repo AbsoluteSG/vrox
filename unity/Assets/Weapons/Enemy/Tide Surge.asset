@@ -16,7 +16,7 @@ MonoBehaviour:
   DisplayName: Tide Surge
   Description: A wide cold wash that leaves the legs slow.
   Icon: {fileID: 0}
-  Tint: {r: 0.35, g: 0.78, b: 0.85, a: 1.0}
+  Tint: {r: 0.35, g: 0.78, b: 0.85, a: 1}
   Width: 1
   Height: 1
   Tier: 0
@@ -28,7 +28,7 @@ MonoBehaviour:
   ProjectileLifetimeMs: 1471
   ProjectileSize: 0.5625
   Debuff: 2
-  DebuffSeconds: 2.0
+  DebuffSeconds: 2
   Range: 0
   Pierce: 0
   FalloffPercent: 100
@@ -45,11 +45,12 @@ MonoBehaviour:
   WaveFrequency: 2
   Mix: []
   Assignment: 0
+  BulletSpriteId: 0
   references:
     version: 2
     RefIds:
     - rid: 415439671717267337
       type: {class: SpreadShot, ns: Vrox.Equipment, asm: Vrox}
       data:
-        Shots: 5
+        Shots: 7
         Arc: 60

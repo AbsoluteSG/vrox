@@ -16,7 +16,7 @@ MonoBehaviour:
   DisplayName: Rootbound
   Description: It plants itself and cannot be cut until it moves.
   Icon: {fileID: 0}
-  Tint: {r: 0.55, g: 0.85, b: 0.3, a: 1.0}
+  Tint: {r: 0.55, g: 0.85, b: 0.3, a: 1}
   Width: 1
   Height: 1
   Tier: 3
@@ -24,9 +24,9 @@ MonoBehaviour:
   Element: 3
   DamageMin: 28
   DamageMax: 38
-  ProjectileSpeed: 6.8
-  ProjectileLifetimeMs: 3235
-  ProjectileSize: 0.5
+  ProjectileSpeed: 9.5
+  ProjectileLifetimeMs: 1846
+  ProjectileSize: 0.808
   Debuff: 0
   DebuffSeconds: 1.5
   Range: 0
