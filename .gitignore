@@ -38,3 +38,8 @@ server/spacetime.local.json
 # the meta alone would leave Unity warning about metadata with no asset.
 /unity/Assets/Plugins/
 /unity/Assets/Plugins.meta
+
+# ---- IDE -----------------------------------------------------------------
+# Rider workspace state (project ids, local changelists, usage stats), which it
+# drops into any folder opened on its own, including inside Assets.
+.idea/
