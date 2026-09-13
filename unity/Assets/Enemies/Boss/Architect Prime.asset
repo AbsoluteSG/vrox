@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
   Id: 20
   DisplayName: Architect Prime
-  Tint: {r: 0.85, g: 0.75, b: 1.0, a: 1.0}
+  Tint: {r: 0.85, g: 0.75, b: 1, a: 1}
+  Sprite: {fileID: 0}
   MaxHp: 9500
-  Radius: 2.0
+  Radius: 2
   Speed: 2.2
   Movement:
     rid: 415439607215835093
@@ -26,6 +27,17 @@ MonoBehaviour:
   IsBoss: 1
   MaxEnergy: 200
   Phases:
+  - Name: Fracture
+    Movement:
+      rid: 415439601980979462
+    Weapon: {fileID: 11400000, guid: 460645fc218d1974436677a2c66ab122, type: 2}
+    AttackRange: 30
+    Invulnerable: 0
+    Untargetable: 0
+    DamageTakenPercent: 100
+    Speed: 3
+    Transition:
+      rid: 415439654423426128
   - Name: Calibration
     Movement:
       rid: 415439677468697937
@@ -59,17 +71,6 @@ MonoBehaviour:
     Speed: 2.6
     Transition:
       rid: 415439650459701377
-  - Name: Fracture
-    Movement:
-      rid: 415439601980979462
-    Weapon: {fileID: 11400000, guid: 460645fc218d1974436677a2c66ab122, type: 2}
-    AttackRange: 30
-    Invulnerable: 0
-    Untargetable: 0
-    DamageTakenPercent: 100
-    Speed: 3.0
-    Transition:
-      rid: 415439654423426128
   - Name: Cascade Failure
     Movement:
       rid: 415439643466050036

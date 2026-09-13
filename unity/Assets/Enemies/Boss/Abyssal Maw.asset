@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
   Id: 10
   DisplayName: Abyssal Maw
-  Tint: {r: 0.15, g: 0.4, b: 0.6, a: 1.0}
+  Tint: {r: 0.15, g: 0.4, b: 0.6, a: 1}
+  Sprite: {fileID: 0}
   MaxHp: 8600
   Radius: 1.9
-  Speed: 2.0
+  Speed: 2
   Movement:
     rid: 415439682000384161
   Weapon: {fileID: 0}
@@ -91,7 +92,7 @@ MonoBehaviour:
       data:
         Circles: 1
         NoticeRange: 24
-        Radius: 5
+        Radius: 4.75
     - rid: 415439620068690244
       type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
       data:
@@ -102,7 +103,7 @@ MonoBehaviour:
       type: {class: KeepDistanceMovement, ns: Vrox.Equipment, asm: Vrox}
       data:
         NoticeRange: 26
-        Range: 10
+        Range: 3.5
     - rid: 415439638085681898
       type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
       data:

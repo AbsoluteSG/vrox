@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
   Id: 15
   DisplayName: Hollow Matriarch
-  Tint: {r: 0.35, g: 0.65, b: 0.28, a: 1.0}
-  MaxHp: 7800
-  Radius: 1.6
-  Speed: 2.6
+  Tint: {r: 0.35, g: 0.65, b: 0.28, a: 1}
+  Sprite: {fileID: 0}
+  MaxHp: 944
+  Radius: 2
+  Speed: 1
   Movement:
-    rid: 415439687976345759
+    rid: 415439745808597220
   Weapon: {fileID: 0}
   AttackRange: 0
   TouchDamage: 0
@@ -30,7 +31,7 @@ MonoBehaviour:
     Movement:
       rid: 415439641316124515
     Weapon: {fileID: 11400000, guid: 0875cef2d9fc38623c70c16b3c3f6a1e, type: 2}
-    AttackRange: 22
+    AttackRange: 21.5
     Invulnerable: 0
     Untargetable: 0
     DamageTakenPercent: 100
@@ -107,7 +108,7 @@ MonoBehaviour:
     - rid: 415439641316124515
       type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
       data:
-        NoticeRange: 20
+        NoticeRange: 12.25
     - rid: 415439642991706305
       type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
       data:
@@ -132,10 +133,10 @@ MonoBehaviour:
         Circles: 0
         NoticeRange: 24
         Radius: 6
-    - rid: 415439687976345759
-      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
-      data: 
     - rid: 415439697078492968
       type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
       data:
         Percent: 25
+    - rid: 415439745808597220
+      type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
+      data: 

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
   Id: 23
   DisplayName: The Grafted King
-  Tint: {r: 0.42, g: 0.7, b: 0.25, a: 1.0}
+  Tint: {r: 0.42, g: 0.7, b: 0.25, a: 1}
+  Sprite: {fileID: 0}
   MaxHp: 28000
   Radius: 2.7
   Speed: 2.2
@@ -30,7 +31,7 @@ MonoBehaviour:
     Movement:
       rid: 415439620461444433
     Weapon: {fileID: 11400000, guid: e70e884c9bb905feb8610fdf7319f2e5, type: 2}
-    AttackRange: 26
+    AttackRange: 16
     Invulnerable: 0
     Untargetable: 0
     DamageTakenPercent: 100
@@ -67,7 +68,7 @@ MonoBehaviour:
     Invulnerable: 0
     Untargetable: 0
     DamageTakenPercent: 100
-    Speed: 3.0
+    Speed: 3
     Transition:
       rid: 415439652684767317
   - Name: Sporefall
@@ -89,7 +90,7 @@ MonoBehaviour:
     Invulnerable: 0
     Untargetable: 0
     DamageTakenPercent: 100
-    Speed: 4.0
+    Speed: 4
     Transition:
       rid: 415439603596552400
   Resist:
@@ -124,7 +125,7 @@ MonoBehaviour:
     - rid: 415439620461444433
       type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
       data:
-        NoticeRange: 26
+        NoticeRange: 19.3
     - rid: 415439622082880667
       type: {class: StaticMovement, ns: Vrox.Equipment, asm: Vrox}
       data: 
@@ -156,7 +157,7 @@ MonoBehaviour:
       data:
         Circles: 0
         NoticeRange: 30
-        Radius: 5
+        Radius: 4.75
     - rid: 415439689400690800
       type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
       data:
