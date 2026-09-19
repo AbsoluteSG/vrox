@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly IdUniqueIndex Id;
 
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(Dummy row) => row.ZoneId;
+
+                public ZoneIdIndex(DummyHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal DummyHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(Dummy row) => row.Id;
@@ -47,6 +57,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Dummy, ushort> MaxHp { get; }
         public global::SpacetimeDB.Col<Dummy, SpacetimeDB.Timestamp> LastHitAt { get; }
         public global::SpacetimeDB.Col<Dummy, ushort> LastDamage { get; }
+        public global::SpacetimeDB.Col<Dummy, uint> ZoneId { get; }
 
         public DummyCols(string tableName)
         {
@@ -58,16 +69,19 @@ namespace SpacetimeDB.Types
             MaxHp = new global::SpacetimeDB.Col<Dummy, ushort>(tableName, "max_hp");
             LastHitAt = new global::SpacetimeDB.Col<Dummy, SpacetimeDB.Timestamp>(tableName, "last_hit_at");
             LastDamage = new global::SpacetimeDB.Col<Dummy, ushort>(tableName, "last_damage");
+            ZoneId = new global::SpacetimeDB.Col<Dummy, uint>(tableName, "zone_id");
         }
     }
 
     public sealed class DummyIxCols
     {
         public global::SpacetimeDB.IxCol<Dummy, ulong> Id { get; }
+        public global::SpacetimeDB.IxCol<Dummy, uint> ZoneId { get; }
 
         public DummyIxCols(string tableName)
         {
             Id = new global::SpacetimeDB.IxCol<Dummy, ulong>(tableName, "id");
+            ZoneId = new global::SpacetimeDB.IxCol<Dummy, uint>(tableName, "zone_id");
         }
     }
 }

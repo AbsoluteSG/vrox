@@ -43,6 +43,7 @@ vrox — a terminal client for the Vrox server
   vrox spawn <count> [defId] [x] [y] [radius]
   vrox clear                    remove every live enemy
   vrox enemies|players|items|pools|bags   list rows
+  vrox zones                    open zones and portals
   vrox logs [n]                 tail the server log
   vrox sql "<query>"            raw query
   vrox call <reducer> [args...] raw reducer call
@@ -65,7 +66,7 @@ case "${1:-}" in
   tick)
     # Intervals between ticks, not tick durations — a module has no clock. See
     # SetTickInterval in Module.cs for why that still answers the question.
-    sql 'SELECT last_micros, max_micros, ticks, total_micros, enemies, active, shots, players FROM tick_metric' \
+    sql 'SELECT last_micros, max_micros, ticks, total_micros, enemies, active, shots, players, zones, busiest_zone FROM tick_metric' \
       | awk -F'|' 'NR>2 && NF {
           for (i=1;i<=NF;i++) gsub(/^ +| +$/,"",$i);
           n=$3+0;
@@ -73,7 +74,15 @@ case "${1:-}" in
           printf "interval  last %.2f ms   avg %.2f ms   max %.2f ms   over %d ticks\n",
                  $1/1000, ($4/n)/1000, $2/1000, n;
           printf "carrying  %s enemies (%s simulated), %s shots, %s players\n", $5, $6, $7, $8;
+          printf "zones     %s open, busiest holds %s player(s)\n", $9, $10;
         }'
+    ;;
+
+  zones)
+    # Open zones, then every portal. A dungeon zone with a non-zero empty_since_us
+    # is counting down to being closed.
+    sql 'SELECT id, kind, layout_id, return_x, return_y, empty_since_us, closes_at_us FROM zone'
+    sql 'SELECT id, zone_id, kind, layout_id, target_zone_id, x, y, expires_at_us FROM portal'
     ;;
 
   watch)

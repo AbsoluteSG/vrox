@@ -31,6 +31,10 @@ namespace SpacetimeDB.Types
         public int Shots;
         [DataMember(Name = "players")]
         public int Players;
+        [DataMember(Name = "zones")]
+        public int Zones;
+        [DataMember(Name = "busiest_zone")]
+        public int BusiestZone;
 
         public TickMetric(
             byte Id,
@@ -41,7 +45,9 @@ namespace SpacetimeDB.Types
             int Enemies,
             int Active,
             int Shots,
-            int Players
+            int Players,
+            int Zones,
+            int BusiestZone
         )
         {
             this.Id = Id;
@@ -53,6 +59,8 @@ namespace SpacetimeDB.Types
             this.Active = Active;
             this.Shots = Shots;
             this.Players = Players;
+            this.Zones = Zones;
+            this.BusiestZone = BusiestZone;
         }
 
         public TickMetric()

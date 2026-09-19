@@ -53,6 +53,8 @@ namespace SpacetimeDB.Types
         public ulong ArmorBrokenUntilUs;
         [DataMember(Name = "armor_break_percent")]
         public ushort ArmorBreakPercent;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Player(
             SpacetimeDB.Identity Identity,
@@ -74,7 +76,8 @@ namespace SpacetimeDB.Types
             ulong StunnedUntilUs,
             ulong SlowedUntilUs,
             ulong ArmorBrokenUntilUs,
-            ushort ArmorBreakPercent
+            ushort ArmorBreakPercent,
+            uint ZoneId
         )
         {
             this.Identity = Identity;
@@ -97,6 +100,7 @@ namespace SpacetimeDB.Types
             this.SlowedUntilUs = SlowedUntilUs;
             this.ArmorBrokenUntilUs = ArmorBrokenUntilUs;
             this.ArmorBreakPercent = ArmorBreakPercent;
+            this.ZoneId = ZoneId;
         }
 
         public Player()

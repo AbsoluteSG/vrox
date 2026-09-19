@@ -55,6 +55,8 @@ namespace SpacetimeDB.Types
         public uint Tint;
         [DataMember(Name = "sprite_id")]
         public byte SpriteId;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Shot(
             ulong Id,
@@ -77,7 +79,8 @@ namespace SpacetimeDB.Types
             float WaveFrequency,
             float WavePhase,
             uint Tint,
-            byte SpriteId
+            byte SpriteId,
+            uint ZoneId
         )
         {
             this.Id = Id;
@@ -101,6 +104,7 @@ namespace SpacetimeDB.Types
             this.WavePhase = WavePhase;
             this.Tint = Tint;
             this.SpriteId = SpriteId;
+            this.ZoneId = ZoneId;
         }
 
         public Shot()

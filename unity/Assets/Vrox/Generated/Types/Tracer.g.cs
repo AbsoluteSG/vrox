@@ -31,6 +31,8 @@ namespace SpacetimeDB.Types
         public bool Hit;
         [DataMember(Name = "fired_at")]
         public SpacetimeDB.Timestamp FiredAt;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Tracer(
             ulong Id,
@@ -41,7 +43,8 @@ namespace SpacetimeDB.Types
             float Y2,
             uint Tint,
             bool Hit,
-            SpacetimeDB.Timestamp FiredAt
+            SpacetimeDB.Timestamp FiredAt,
+            uint ZoneId
         )
         {
             this.Id = Id;
@@ -53,6 +56,7 @@ namespace SpacetimeDB.Types
             this.Tint = Tint;
             this.Hit = Hit;
             this.FiredAt = FiredAt;
+            this.ZoneId = ZoneId;
         }
 
         public Tracer()

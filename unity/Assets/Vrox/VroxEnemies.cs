@@ -88,6 +88,9 @@ namespace Vrox
 
         private readonly System.Collections.Generic.Dictionary<ulong, Dying> _alive = new();
 
+        /// <summary>The zone the bookkeeping below belongs to.</summary>
+        private uint _zone;
+
         /// <summary>Where each enemy is currently drawn, as opposed to where it is.</summary>
         private readonly System.Collections.Generic.Dictionary<ulong, Vector2> _drawn = new();
         private readonly System.Collections.Generic.List<Dying> _dying = new();
@@ -206,6 +209,20 @@ namespace Vrox
 
             Hook(conn);
 
+            // A zone change removes every enemy at once. Retired normally, the whole
+            // previous zone would shrink away on top of the new one. Rows from the
+            // old zone can also linger for a frame after the switch, until the old
+            // subscription is dropped, so they are skipped below rather than drawn.
+            uint zone = net.SubscribedZone;
+            if (zone != _zone)
+            {
+                _zone = zone;
+                _alive.Clear();
+                _dying.Clear();
+                _drawn.Clear();
+                _debuffs.Clear();
+            }
+
             long now = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000L;
 
             _verts.Clear();
@@ -224,6 +241,10 @@ namespace Vrox
 
             foreach (var enemy in conn.Db.Enemy.Iter())
             {
+                if (enemy.ZoneId != zone)
+                {
+                    continue;
+                }
                 var def = conn.Db.EnemyDef.Id.Find(enemy.DefId);
 
                 // Drawn at a default size when the definition has not arrived

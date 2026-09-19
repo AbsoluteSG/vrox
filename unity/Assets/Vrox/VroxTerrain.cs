@@ -217,6 +217,9 @@ namespace Vrox
                     conn.Db.TerrainChunk.OnInsert += OnChunk;
                     conn.Db.TerrainChunk.OnDelete += OnChunk;
                     conn.Db.TerrainChunk.OnUpdate += OnChunkUpdated;
+                    conn.Db.LayoutChunk.OnInsert += OnLayoutChunk;
+                    conn.Db.LayoutChunk.OnDelete += OnLayoutChunk;
+                    conn.Db.LayoutChunk.OnUpdate += OnLayoutChunkUpdated;
                     conn.Db.BiomeDef.OnInsert += OnBiome;
                     conn.Db.BiomeDef.OnDelete += OnBiome;
                     conn.Db.BiomeDef.OnUpdate += OnBiomeUpdated;
@@ -240,6 +243,9 @@ namespace Vrox
             conn.Db.TerrainChunk.OnInsert -= OnChunk;
             conn.Db.TerrainChunk.OnDelete -= OnChunk;
             conn.Db.TerrainChunk.OnUpdate -= OnChunkUpdated;
+            conn.Db.LayoutChunk.OnInsert -= OnLayoutChunk;
+            conn.Db.LayoutChunk.OnDelete -= OnLayoutChunk;
+            conn.Db.LayoutChunk.OnUpdate -= OnLayoutChunkUpdated;
             conn.Db.BiomeDef.OnInsert -= OnBiome;
             conn.Db.BiomeDef.OnDelete -= OnBiome;
             conn.Db.BiomeDef.OnUpdate -= OnBiomeUpdated;
@@ -251,6 +257,14 @@ namespace Vrox
         private void OnChunk(EventContext ctx, TerrainChunk row) => _dirty = true;
 
         private void OnChunkUpdated(EventContext ctx, TerrainChunk oldRow, TerrainChunk newRow) =>
+            _dirty = true;
+
+        // A dungeon's map. Only one of the two chunk tables is subscribed at a
+        // time — whichever the player's zone uses — so drawing both is drawing
+        // the one the player is in.
+        private void OnLayoutChunk(EventContext ctx, LayoutChunk row) => _dirty = true;
+
+        private void OnLayoutChunkUpdated(EventContext ctx, LayoutChunk oldRow, LayoutChunk newRow) =>
             _dirty = true;
 
         // Re-colouring a biome redraws the map without regenerating it, so
@@ -274,9 +288,11 @@ namespace Vrox
             int span = 0;
             foreach (var chunk in conn.Db.TerrainChunk.Iter())
             {
-                int cx = (int)(chunk.Cell >> 16);
-                int cy = (int)(chunk.Cell & 0xFFFF);
-                span = Mathf.Max(span, Mathf.Max(cx, cy) + 1);
+                span = Mathf.Max(span, ChunkExtent(chunk.Cell));
+            }
+            foreach (var chunk in conn.Db.LayoutChunk.Iter())
+            {
+                span = Mathf.Max(span, ChunkExtent(chunk.Cell));
             }
             if (span == 0)
             {
@@ -288,20 +304,28 @@ namespace Vrox
             var tiles = new TileData[span * span];
             var present = new bool[span * span];
 
-            foreach (var chunk in conn.Db.TerrainChunk.Iter())
+            void Fill(uint cell, List<TileData> chunkTiles)
             {
-                int cx = (int)(chunk.Cell >> 16);
-                int cy = (int)(chunk.Cell & 0xFFFF);
-                for (int i = 0; i < chunk.Tiles.Count && i < ChunkSize * ChunkSize; i++)
+                int cx = (int)(cell >> 16);
+                int cy = (int)(cell & 0xFFFF);
+                for (int i = 0; i < chunkTiles.Count && i < ChunkSize * ChunkSize; i++)
                 {
                     int x = cx * ChunkSize + i % ChunkSize;
                     int y = cy * ChunkSize + i / ChunkSize;
                     if (x < span && y < span)
                     {
-                        tiles[y * span + x] = chunk.Tiles[i];
+                        tiles[y * span + x] = chunkTiles[i];
                         present[y * span + x] = true;
                     }
                 }
+            }
+            foreach (var chunk in conn.Db.TerrainChunk.Iter())
+            {
+                Fill(chunk.Cell, chunk.Tiles);
+            }
+            foreach (var chunk in conn.Db.LayoutChunk.Iter())
+            {
+                Fill(chunk.Cell, chunk.Tiles);
             }
 
             _verts.Clear();
@@ -464,6 +488,10 @@ namespace Vrox
             tris.Add(v + 2);
             tris.Add(v + 3);
         }
+
+        /// <summary>How many chunks wide a map must be to include this one.</summary>
+        private static int ChunkExtent(uint cell) =>
+            Mathf.Max((int)(cell >> 16), (int)(cell & 0xFFFF)) + 1;
 
         /// <summary>Must match the server's ChunkSize.</summary>
         private const int ChunkSize = 16;

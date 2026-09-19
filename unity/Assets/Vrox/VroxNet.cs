@@ -51,24 +51,14 @@ namespace Vrox
         /// </remarks>
         private static readonly string[] Queries =
         {
-            "SELECT * FROM player",
-            "SELECT * FROM shot",
+            // This client's own player row, wherever it is. Every other player is
+            // per zone, but the zone is read from this row, so it cannot live
+            // inside the subscription it decides.
+            "SELECT * FROM player WHERE identity = :sender",
 
-            // Hitscan rays, drawn for a moment and dropped. Subscribed because a
-            // tracer nobody can read is a gun that fires invisibly.
-            "SELECT * FROM tracer",
-
-            // One row per hit, never stored — an event table, so only the insert
-            // callback fires. Subscribed because the enemy row collapses a whole
-            // volley into one number, and a shotgun is eight of them.
-            "SELECT * FROM hit",
             "SELECT * FROM weapon_def",
-            "SELECT * FROM dummy",
-            "SELECT * FROM enemy",
             "SELECT * FROM enemy_def",
-            "SELECT * FROM spawner",
             "SELECT * FROM player_config",
-            "SELECT * FROM terrain_chunk",
 
             // The realm row is how the client learns the world's size and
             // whether terrain is generated, instead of duplicating constants
@@ -77,7 +67,14 @@ namespace Vrox
             "SELECT * FROM realm_config",
             "SELECT * FROM biome_def",
             "SELECT * FROM phase_def",
-            "SELECT * FROM loot_drop",
+
+            // Which copies of the world exist, and which layout each uses. The
+            // zone watcher needs the layout to know which terrain table to read.
+            "SELECT * FROM zone",
+
+            // Every layout's header, so an entrance can be coloured before anyone
+            // has opened its dungeon. Their terrain is per zone.
+            "SELECT * FROM dungeon_layout",
 
             // The catalogue every other item reference is resolved through. A
             // bag and, later, an inventory slot record an id and a count; this
@@ -85,7 +82,8 @@ namespace Vrox
             //
             // loot_entry is deliberately absent and is not a public table: drop
             // tables are what an enemy *might* give, which is design data the
-            // client has no use for and no business reading.
+            // client has no use for and no business reading. portal_drop and
+            // layout_spawner are private for the same reason.
             "SELECT * FROM item_def",
 
             // Every player's inventory, not just this one's. A per-player filter
@@ -108,6 +106,42 @@ namespace Vrox
             // one-shot at the end, not as a live stream.
         };
 
+        /// <summary>
+        /// Everything this client reads about the zone it is standing in.
+        /// </summary>
+        /// <remarks>
+        /// Filtered on the server, so a client receives the bullets, enemies and
+        /// movement of its own zone and nothing else — bandwidth that grows with
+        /// the zone rather than with the whole server. The rule on
+        /// <see cref="Queries"/> applies here too: a world table the game reads
+        /// that is missing from this list is silently empty.
+        /// </remarks>
+        private static string[] ZoneQueries(uint zone, ushort layout) => new[]
+        {
+            $"SELECT * FROM player WHERE zone_id = {zone}",
+            $"SELECT * FROM shot WHERE zone_id = {zone}",
+
+            // Hitscan rays, drawn for a moment and dropped. Subscribed because a
+            // tracer nobody can read is a gun that fires invisibly.
+            $"SELECT * FROM tracer WHERE zone_id = {zone}",
+
+            // One row per hit, never stored — an event table, so only the insert
+            // callback fires. Subscribed because the enemy row collapses a whole
+            // volley into one number, and a shotgun is eight of them.
+            $"SELECT * FROM hit WHERE zone_id = {zone}",
+            $"SELECT * FROM dummy WHERE zone_id = {zone}",
+            $"SELECT * FROM enemy WHERE zone_id = {zone}",
+            $"SELECT * FROM spawner WHERE zone_id = {zone}",
+            $"SELECT * FROM loot_drop WHERE zone_id = {zone}",
+            $"SELECT * FROM portal WHERE zone_id = {zone}",
+
+            // The realm's map and a dungeon's live in different tables — see
+            // LayoutChunk on the server for why they could not share one.
+            layout == 0
+                ? "SELECT * FROM terrain_chunk"
+                : $"SELECT * FROM layout_chunk WHERE layout_id = {layout}",
+        };
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -125,6 +159,7 @@ namespace Vrox
                 .OnDisconnect((_, e) =>
                 {
                     Ready = false;
+                    ForgetZone();
                     Debug.LogWarning($"[vrox] disconnected: {e?.Message ?? "clean"}");
                 })
                 .Build();
@@ -172,11 +207,108 @@ namespace Vrox
                                + "rolling. Add the component, or run Vrox > Create Scene.",
                                  this);
             }
+            if (FindAnyObjectByType<VroxPortals>() == null)
+            {
+                Debug.LogWarning("[vrox] no VroxPortals in the scene, so dungeon portals will "
+                               + "never be drawn or usable. Add the component, or run "
+                               + "Vrox > Create Scene.", this);
+            }
+        }
+
+        private SubscriptionHandle? _zoneHandle;
+        private (uint zone, ushort layout)? _zoneKey;
+        private (uint zone, ushort layout)? _pendingKey;
+        private (uint zone, ushort layout)? _failedKey;
+
+        /// <summary>
+        /// The zone whose rows this client is receiving, or 0 before the first arrive.
+        /// </summary>
+        /// <remarks>
+        /// The zone the <em>subscription</em> covers, not the zone the player row
+        /// names. The two differ between the server moving the player and the new
+        /// zone's rows landing, and anything drawing rows has to agree with what it
+        /// has actually been sent.
+        /// </remarks>
+        public uint SubscribedZone => _zoneKey?.zone ?? 0;
+
+        /// <summary>
+        /// Keeps the zone subscription on whichever zone the server says we are in.
+        /// </summary>
+        /// <remarks>
+        /// Driven by the replicated player row, never by having pressed a portal
+        /// key: the reducer can refuse, and a client that switched on intent would
+        /// sit in an empty zone it was never let into.
+        ///
+        /// The new zone is subscribed before the old one is dropped, so the world
+        /// never goes blank between them. It waits for the zone row rather than
+        /// assuming the realm, because a dungeon's terrain is in a different table
+        /// and a guess would subscribe the wrong one.
+        ///
+        /// A zone whose subscription the server rejected is not retried every
+        /// frame; the error is logged once and stands until the zone changes.
+        /// </remarks>
+        private void FollowZone()
+        {
+            if (!Ready || Conn is not { } conn || LocalPlayer is not { } player)
+            {
+                return;
+            }
+            if (conn.Db.Zone.Id.Find(player.ZoneId) is not { } zone)
+            {
+                return;
+            }
+
+            (uint zone, ushort layout) key = (player.ZoneId, zone.LayoutId);
+            if (_zoneKey == key || _pendingKey == key || _failedKey == key)
+            {
+                return;
+            }
+
+            _pendingKey = key;
+            var previous = _zoneHandle;
+            SubscriptionHandle? handle = null;
+            handle = conn.SubscriptionBuilder()
+                .OnApplied(_ =>
+                {
+                    if (_pendingKey != key)
+                    {
+                        // Moved again before this one landed.
+                        handle?.Unsubscribe();
+                        return;
+                    }
+                    _zoneHandle = handle;
+                    _zoneKey = key;
+                    _pendingKey = null;
+                    _failedKey = null;
+                    previous?.Unsubscribe();
+                    Debug.Log($"[vrox] receiving zone {key.zone} (layout {key.layout})");
+                })
+                .OnError((_, e) =>
+                {
+                    Debug.LogError($"[vrox] the server refused the subscription for zone {key.zone}: "
+                                 + e.Message);
+                    if (_pendingKey == key)
+                    {
+                        _pendingKey = null;
+                    }
+                    _failedKey = key;
+                })
+                .Subscribe(ZoneQueries(key.zone, key.layout));
+        }
+
+        /// <summary>Drops zone bookkeeping; the handles died with the connection.</summary>
+        private void ForgetZone()
+        {
+            _zoneHandle = null;
+            _zoneKey = null;
+            _pendingKey = null;
+            _failedKey = null;
         }
 
         private void Update()
         {
             Conn?.FrameTick();
+            FollowZone();
             WarnIfStranded();
         }
 

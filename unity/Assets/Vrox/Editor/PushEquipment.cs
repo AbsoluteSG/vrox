@@ -281,6 +281,9 @@ namespace Vrox.Editor
             }
             PushSpawners(conn);
 
+            // After enemies: a layout's drops and spawners name enemy def ids.
+            PushDungeons.Push(conn);
+
             Debug.Log($"Vrox: pushed {weapons.Count} weapon(s) and {enemies.Count} enemy type(s): "
                     + string.Join(", ", weapons.Select(w => $"{w.Id} {w.DisplayName}")
                         .Concat(enemies.Select(e => $"{e.Id} {e.DisplayName}"))));
@@ -333,7 +336,11 @@ namespace Vrox.Editor
         /// </remarks>
         private static void PushSpawners(SpacetimeDB.Types.DbConnection conn)
         {
-            var spawners = Object.FindObjectsByType<Vrox.VroxSpawner>(FindObjectsInactive.Exclude);
+            // A spawner under a dungeon layout is that dungeon's, pushed by PushDungeons.
+            // Pushed here as well it would populate the realm at the dungeon's coordinates.
+            var spawners = Object.FindObjectsByType<Vrox.VroxSpawner>(FindObjectsInactive.Exclude)
+                .Where(s => s.GetComponentInParent<Vrox.VroxDungeonLayout>() == null)
+                .ToArray();
 
             conn.Reducers.ClearSpawners(0);
 

@@ -263,6 +263,743 @@ public static partial class Module
     // "my weapon fires one projectile" looked exactly the same on screen and the
     // real failure was invisible.
 
+    /// <summary>
+    /// One separate copy of the world: the realm, or later a dungeon.
+    /// </summary>
+    /// <remarks>
+    /// Every world-scoped row — players, enemies, shots, spawners, bags, tracers,
+    /// dummies — carries a <c>ZoneId</c>, and the tick simulates each zone only
+    /// against its own rows. That one column is the whole separation, which is
+    /// also what keeps this shard-ready: a zone never refers to another database.
+    ///
+    /// Not <c>AutoInc</c>. The realm is a fixed id that column defaults point at,
+    /// and inserting an explicit value into an auto-increment column leaves the
+    /// sequence free to hand the same id out again later.
+    ///
+    /// Terrain is still the single realm map. Dungeon layouts, and a terrain
+    /// cache per layout, arrive with the first authored dungeon — until then a
+    /// second zone would share the realm's walls.
+    /// </remarks>
+    [SpacetimeDB.Table(Accessor = "Zone", Public = true)]
+    public partial struct Zone
+    {
+        [PrimaryKey]
+        public uint Id;
+
+        /// <summary><see cref="ZoneRealm"/> or <see cref="ZoneDungeon"/>.</summary>
+        public byte Kind;
+
+        /// <summary>Which terrain this zone uses. 0 is the realm map.</summary>
+        public ushort LayoutId;
+
+        public Timestamp CreatedAt;
+
+        /// <summary>Where a player leaving this zone lands in the realm.</summary>
+        /// <remarks>The entrance portal's position, copied here because the portal expires long before the dungeon does.</remarks>
+        [SpacetimeDB.Default(0f)]
+        public float ReturnX;
+
+        [SpacetimeDB.Default(0f)]
+        public float ReturnY;
+
+        /// <summary>When the last player left, in microseconds. 0 while anyone is inside.</summary>
+        [SpacetimeDB.Default(0ul)]
+        public ulong EmptySinceUs;
+
+        /// <summary>When this zone closes whoever is inside, in microseconds. 0 never — the realm.</summary>
+        [SpacetimeDB.Default(0ul)]
+        public ulong ClosesAtUs;
+    }
+
+    /// <summary>
+    /// A dungeon's shape, authored as a Unity tilemap and pushed by the editor.
+    /// </summary>
+    /// <remarks>
+    /// A template, not an instance. Every run of a dungeon shares this row and its
+    /// chunks, so opening one writes no terrain at all — ten parties in the same
+    /// dungeon cost one copy of its map.
+    /// </remarks>
+    [SpacetimeDB.Table(Accessor = "DungeonLayout", Public = true)]
+    public partial struct DungeonLayout
+    {
+        [PrimaryKey]
+        public ushort Id;
+
+        public string Name;
+
+        /// <summary>Span in tiles on each axis. A whole number of chunks.</summary>
+        public uint Size;
+
+        public float SpawnX;
+        public float SpawnY;
+
+        /// <summary>Where the portal back to the realm stands.</summary>
+        public float ExitX;
+        public float ExitY;
+
+        /// <summary>Packed 0xRRGGBB, for the portal that leads here.</summary>
+        public uint Tint;
+
+        /// <summary>How long a run may last before it closes on whoever is still inside.</summary>
+        public uint LifetimeSeconds;
+    }
+
+    /// <summary>One chunk of a dungeon layout's terrain.</summary>
+    /// <remarks>
+    /// A table of its own rather than a <c>LayoutId</c> on <see cref="TerrainChunk"/>,
+    /// whose primary key is the cell alone. Changing a primary key cannot be
+    /// migrated, and a shared table would also mean a realm push could clear
+    /// dungeon ground.
+    /// </remarks>
+    [SpacetimeDB.Table(Accessor = "LayoutChunk", Public = true)]
+    public partial struct LayoutChunk
+    {
+        [PrimaryKey]
+        [AutoInc]
+        public ulong Id;
+
+        [SpacetimeDB.Index.BTree]
+        public ushort LayoutId;
+
+        public uint Cell;
+
+        /// <summary>ChunkSize * ChunkSize tiles, row-major from the chunk's bottom-left.</summary>
+        public List<TileData> Tiles;
+    }
+
+    /// <summary>A spawner as authored in a layout, copied into each run of it.</summary>
+    /// <remarks>
+    /// Private: this is what a dungeon <em>will</em> contain, the same kind of
+    /// design data as a loot table. A run that is already open keeps the spawners
+    /// it was opened with; re-pushing only changes runs opened afterwards.
+    /// </remarks>
+    [SpacetimeDB.Table(Accessor = "LayoutSpawner")]
+    public partial struct LayoutSpawner
+    {
+        [PrimaryKey]
+        [AutoInc]
+        public ulong Id;
+
+        [SpacetimeDB.Index.BTree]
+        public ushort LayoutId;
+
+        public List<AreaEntry> Composition;
+        public float X;
+        public float Y;
+        public float Radius;
+        public ushort MaxAlive;
+        public ushort IntervalMs;
+    }
+
+    /// <summary>Which enemies can drop a portal to which dungeon. Private, like loot tables.</summary>
+    [SpacetimeDB.Table(Accessor = "PortalDrop")]
+    public partial struct PortalDrop
+    {
+        [PrimaryKey]
+        [AutoInc]
+        public ulong Id;
+
+        [SpacetimeDB.Index.BTree]
+        public ushort EnemyDefId;
+
+        [SpacetimeDB.Index.BTree]
+        public ushort LayoutId;
+
+        public float ChancePercent;
+    }
+
+    /// <summary>One "dropped by" entry, as the editor sends it.</summary>
+    [SpacetimeDB.Type]
+    public partial struct LayoutDrop
+    {
+        public ushort EnemyDefId;
+        public float ChancePercent;
+    }
+
+    /// <summary>
+    /// A doorway between zones.
+    /// </summary>
+    /// <remarks>
+    /// Public by design: anyone standing next to an entrance may use it, and
+    /// everyone who does lands in the same run. The run is opened by the first
+    /// person through, not when the portal drops, so a portal nobody takes costs
+    /// one row.
+    /// </remarks>
+    [SpacetimeDB.Table(Accessor = "Portal", Public = true)]
+    public partial struct Portal
+    {
+        [PrimaryKey]
+        [AutoInc]
+        public ulong Id;
+
+        /// <summary>The zone the portal stands in.</summary>
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
+
+        public float X;
+        public float Y;
+
+        /// <summary>The dungeon an entrance leads to. 0 for an exit.</summary>
+        public ushort LayoutId;
+
+        /// <summary>The zone it opens into. 0 until somebody walks through an entrance.</summary>
+        [SpacetimeDB.Index.BTree]
+        public uint TargetZoneId;
+
+        /// <summary><see cref="PortalEntrance"/> or <see cref="PortalExit"/>.</summary>
+        public byte Kind;
+
+        /// <summary>When it disappears, in microseconds. 0 never.</summary>
+        public ulong ExpiresAtUs;
+    }
+
+    public const byte PortalEntrance = 0;
+    public const byte PortalExit = 1;
+
+    // --- Dungeons -----------------------------------------------------------
+    //
+    // An entrance drops in some zone. The first player through opens a run: a
+    // new Zone row pointing at the layout, the layout's spawners copied in with
+    // that zone id, and an exit portal. Everyone else who uses the same entrance
+    // lands in the same run. Leaving — by the exit, by dying, by disconnecting or
+    // by leaving the character — puts you back in the realm at the entrance.
+    //
+    // A run with nobody in it stops simulating immediately and is deleted after a
+    // grace period, row by row through the zone indexes. One that outlives its
+    // layout's lifetime is closed on whoever is still inside.
+
+    /// <summary>How close a player must stand to use a portal, in tiles.</summary>
+    /// <remarks>Checked here against the server's position; the client's range only decides what it offers.</remarks>
+    private const float PortalReach = 1.5f;
+
+    /// <summary>How long a dropped entrance stays open, in seconds.</summary>
+    private const float PortalLifetimeSeconds = 30f;
+
+    /// <summary>How long a run survives with nobody inside, in seconds.</summary>
+    /// <remarks>
+    /// Death, disconnecting and leaving all return you to the realm, so this is not
+    /// a reconnect window. It is what lets a player who stepped out walk back in
+    /// through an entrance that is still open, instead of finding a fresh run.
+    /// </remarks>
+    private const float EmptyZoneGraceSeconds = 60f;
+
+    /// <summary>Lifetime for a layout that did not author one.</summary>
+    private const uint DefaultDungeonLifetimeSeconds = 900;
+
+    /// <summary>
+    /// First spawner id handed to a dungeon run.
+    /// </summary>
+    /// <remarks>
+    /// Spawner ids are a <c>ushort</c> primary key shared with editor spawners
+    /// (1 upward) and generated ones (from 10000), so runs take the top of the
+    /// range. That caps concurrent runs at roughly 25,000 spawners in total —
+    /// thousands of dungeons — and <see cref="FreeSpawnerId"/> refuses loudly when
+    /// it runs out rather than overwriting somebody's camp.
+    /// </remarks>
+    private const int DungeonSpawnerBase = 40000;
+
+    /// <summary>A spawner copied into a dungeon run. Never cleared by an editor push.</summary>
+    public const byte SourceDungeon = 2;
+
+    /// <summary>Rolls this enemy's portal drops, opening at most one entrance.</summary>
+    private static void TrySpawnPortal(ReducerContext ctx, Enemy enemy)
+    {
+        foreach (var drop in ctx.Db.PortalDrop.EnemyDefId.Filter(enemy.DefId).ToList())
+        {
+            if (ctx.Rng.NextDouble() * 100.0 >= drop.ChancePercent)
+            {
+                continue;
+            }
+            if (ctx.Db.DungeonLayout.Id.Find(drop.LayoutId) is not { } layout)
+            {
+                // Said out loud: a drop that can never open looks exactly like an
+                // unlucky roll otherwise.
+                Log.Warn($"enemy {enemy.DefId} drops a portal to layout {drop.LayoutId}, "
+                       + "which has not been pushed");
+                continue;
+            }
+
+            long expires = ctx.Timestamp.MicrosecondsSinceUnixEpoch
+                         + (long)(PortalLifetimeSeconds * 1_000_000f);
+            ctx.Db.Portal.Insert(new Portal
+            {
+                Id = 0,
+                ZoneId = enemy.ZoneId,
+                X = enemy.X,
+                Y = enemy.Y,
+                LayoutId = layout.Id,
+                TargetZoneId = 0,
+                Kind = PortalEntrance,
+                ExpiresAtUs = (ulong)expires,
+            });
+            Log.Info($"a portal to {layout.Name} opened at ({enemy.X:0.0}, {enemy.Y:0.0}) "
+                   + $"in zone {enemy.ZoneId}");
+            return;
+        }
+    }
+
+    /// <summary>Walks the caller through a portal next to them.</summary>
+    [SpacetimeDB.Reducer]
+    public static void EnterPortal(ReducerContext ctx, ulong portalId)
+    {
+        if (ctx.Db.Player.Identity.Find(ctx.Sender) is not { CharacterId: not 0 } player)
+        {
+            throw new Exception("no character is being played");
+        }
+        if (ctx.Db.Portal.Id.Find(portalId) is not { } portal)
+        {
+            throw new Exception("that portal has closed");
+        }
+        if (portal.ZoneId != player.ZoneId)
+        {
+            throw new Exception("that portal is in another zone");
+        }
+        if (player.LootingBag != 0)
+        {
+            throw new Exception("close the bag first");
+        }
+
+        float dx = player.X - portal.X;
+        float dy = player.Y - portal.Y;
+        if (dx * dx + dy * dy > PortalReach * PortalReach)
+        {
+            throw new Exception("too far from that portal");
+        }
+
+        if (portal.Kind == PortalExit)
+        {
+            uint from = player.ZoneId;
+            LeaveZone(ctx, ref player);
+            ctx.Db.Player.Identity.Update(player);
+            Log.Info($"{player.Name} left zone {from}");
+            return;
+        }
+
+        if (ctx.Db.DungeonLayout.Id.Find(portal.LayoutId) is not { } layout)
+        {
+            throw new Exception($"dungeon layout {portal.LayoutId} is not on the server");
+        }
+
+        uint target = portal.TargetZoneId;
+        if (target != 0 && ctx.Db.Zone.Id.Find(target) is null)
+        {
+            // Closing a run deletes the entrances that point at it, so reaching
+            // here means that did not happen. Refused rather than quietly opening
+            // a second run behind the same door.
+            throw new Exception("that dungeon has already closed");
+        }
+        if (target == 0)
+        {
+            target = OpenDungeon(ctx, portal, layout);
+            portal.TargetZoneId = target;
+            ctx.Db.Portal.Id.Update(portal);
+        }
+
+        player.ZoneId = target;
+        player.X = layout.SpawnX;
+        player.Y = layout.SpawnY;
+        ctx.Db.Player.Identity.Update(player);
+        Log.Info($"{player.Name} entered {layout.Name} (zone {target})");
+    }
+
+    /// <summary>Creates a run of a dungeon behind an entrance. Returns its zone id.</summary>
+    private static uint OpenDungeon(ReducerContext ctx, Portal portal, DungeonLayout layout)
+    {
+        // Refused, not opened into solid rock: a layout with no chunks is all wall,
+        // and the player would arrive unable to move with nothing saying why.
+        if (!ctx.Db.LayoutChunk.LayoutId.Filter(layout.Id).Any())
+        {
+            throw new Exception($"{layout.Name} has no terrain pushed");
+        }
+
+        EnsureRealmZone(ctx);
+
+        // One past the highest id in use. An id can come back after the newest run
+        // closes; clients key their subscription on zone and layout together, and a
+        // closed run has no rows left to confuse the new one with.
+        uint id = ctx.Db.Zone.Iter().Max(z => z.Id) + 1;
+        long nowUs = ctx.Timestamp.MicrosecondsSinceUnixEpoch;
+        uint lifetime = layout.LifetimeSeconds > 0 ? layout.LifetimeSeconds : DefaultDungeonLifetimeSeconds;
+
+        ctx.Db.Zone.Insert(new Zone
+        {
+            Id = id,
+            Kind = ZoneDungeon,
+            LayoutId = layout.Id,
+            CreatedAt = ctx.Timestamp,
+            ReturnX = portal.X,
+            ReturnY = portal.Y,
+            EmptySinceUs = 0,
+            ClosesAtUs = (ulong)(nowUs + lifetime * 1_000_000L),
+        });
+
+        int spawners = 0;
+        foreach (var template in ctx.Db.LayoutSpawner.LayoutId.Filter(layout.Id).ToList())
+        {
+            ctx.Db.Spawner.Insert(new Spawner
+            {
+                Id = FreeSpawnerId(ctx),
+                Composition = template.Composition,
+                X = template.X,
+                Y = template.Y,
+                Radius = template.Radius,
+                MaxAlive = template.MaxAlive,
+                IntervalMs = template.IntervalMs,
+                NextSpawnAt = ctx.Timestamp,
+                Source = SourceDungeon,
+                Biome = AnyBiome,
+                ZoneId = id,
+            });
+            spawners++;
+        }
+
+        ctx.Db.Portal.Insert(new Portal
+        {
+            Id = 0,
+            ZoneId = id,
+            X = layout.ExitX,
+            Y = layout.ExitY,
+            LayoutId = 0,
+            TargetZoneId = RealmZone,
+            Kind = PortalExit,
+            ExpiresAtUs = 0,
+        });
+
+        Log.Info($"opened {layout.Name} as zone {id}: {spawners} spawner(s), "
+               + $"closes in {lifetime}s");
+        return id;
+    }
+
+    /// <summary>The lowest spawner id free for a dungeon run.</summary>
+    /// <remarks>
+    /// A linear probe from the base. Cheap while runs are counted in dozens; if
+    /// thousands are ever open at once this wants a free list.
+    /// </remarks>
+    private static ushort FreeSpawnerId(ReducerContext ctx)
+    {
+        for (int id = DungeonSpawnerBase; id <= ushort.MaxValue; id++)
+        {
+            if (ctx.Db.Spawner.Id.Find((ushort)id) is null)
+            {
+                return (ushort)id;
+            }
+        }
+        throw new Exception("no spawner ids left for another dungeon run");
+    }
+
+    /// <summary>
+    /// Puts a player back in the realm, at the entrance of the zone they were in.
+    /// </summary>
+    /// <remarks>
+    /// Does not write the row; callers are all mid-update. Falls back to the realm
+    /// spawn when the entrance point is now solid, because arriving inside a wall
+    /// is unrecoverable.
+    /// </remarks>
+    private static void LeaveZone(ReducerContext ctx, ref Player player)
+    {
+        float x, y;
+        if (ctx.Db.Zone.Id.Find(player.ZoneId) is { Kind: ZoneDungeon } zone)
+        {
+            x = zone.ReturnX;
+            y = zone.ReturnY;
+        }
+        else
+        {
+            (x, y) = SpawnPoint(ctx);
+        }
+        if (GroundOf(ctx, RealmLayout).Blocked(x, y))
+        {
+            (x, y) = SpawnPoint(ctx);
+        }
+
+        player.ZoneId = RealmZone;
+        player.X = x;
+        player.Y = y;
+        player.LootingBag = 0;
+    }
+
+    /// <summary>Deletes a run and everything in it, returning anyone inside to the realm.</summary>
+    private static void CloseZone(ReducerContext ctx, Zone zone, string why)
+    {
+        if (zone.Id == RealmZone)
+        {
+            Log.Error($"refused to close the realm ({why})");
+            return;
+        }
+
+        int evicted = 0;
+        foreach (var inside in ctx.Db.Player.ZoneId.Filter(zone.Id).ToList())
+        {
+            var moved = inside;
+            LeaveZone(ctx, ref moved);
+            ctx.Db.Player.Identity.Update(moved);
+            evicted++;
+        }
+
+        int enemies = 0;
+        foreach (var enemyId in ctx.Db.Enemy.ZoneId.Filter(zone.Id).Select(e => e.Id).ToList())
+        {
+            // Tallies go with their enemy, as they do on a kill. Left behind they
+            // are rows nothing will ever read or delete.
+            foreach (var t in ctx.Db.DamageTally.EnemyId.Filter(enemyId).Select(t => t.Id).ToList())
+            {
+                ctx.Db.DamageTally.Id.Delete(t);
+            }
+            foreach (var t in ctx.Db.DebuffTally.EnemyId.Filter(enemyId).Select(t => t.Id).ToList())
+            {
+                ctx.Db.DebuffTally.Id.Delete(t);
+            }
+            ctx.Db.Enemy.Id.Delete(enemyId);
+            enemies++;
+        }
+
+        foreach (var id in ctx.Db.Shot.ZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.Shot.Id.Delete(id);
+        }
+        foreach (var id in ctx.Db.Spawner.ZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.Spawner.Id.Delete(id);
+        }
+        foreach (var id in ctx.Db.LootDrop.ZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.LootDrop.Id.Delete(id);
+        }
+        foreach (var id in ctx.Db.Tracer.ZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.Tracer.Id.Delete(id);
+        }
+        foreach (var id in ctx.Db.Dummy.ZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.Dummy.Id.Delete(id);
+        }
+        foreach (var id in ctx.Db.Portal.ZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.Portal.Id.Delete(id);
+        }
+        // Entrances in other zones that still lead here. Otherwise the next person
+        // through would be refused by a door that looks open.
+        foreach (var id in ctx.Db.Portal.TargetZoneId.Filter(zone.Id).Select(r => r.Id).ToList())
+        {
+            ctx.Db.Portal.Id.Delete(id);
+        }
+
+        ctx.Db.Zone.Id.Delete(zone.Id);
+        Log.Info($"closed zone {zone.Id} (layout {zone.LayoutId}) — {why}: "
+               + $"{evicted} player(s) returned, {enemies} enemy row(s) removed");
+    }
+
+    /// <summary>Removes entrances whose time is up. Exits never expire.</summary>
+    private static void ExpirePortals(ReducerContext ctx, long nowUs)
+    {
+        var stale = new List<ulong>();
+        foreach (var portal in ctx.Db.Portal.Iter())
+        {
+            if (portal.ExpiresAtUs != 0 && (ulong)nowUs >= portal.ExpiresAtUs)
+            {
+                stale.Add(portal.Id);
+            }
+        }
+        foreach (ulong id in stale)
+        {
+            ctx.Db.Portal.Id.Delete(id);
+        }
+    }
+
+    /// <summary>Opens an entrance to a layout at the caller's feet. Development only.</summary>
+    /// <remarks>
+    /// Like <c>SpawnEnemy</c>: a way to reach a dungeon without farming a drop,
+    /// and the only way to test the whole path from a terminal.
+    /// </remarks>
+    [SpacetimeDB.Reducer]
+    public static void DebugOpenPortal(ReducerContext ctx, ushort layoutId)
+    {
+        if (ctx.Db.Player.Identity.Find(ctx.Sender) is not { } player)
+        {
+            throw new Exception("no player row for the caller");
+        }
+        if (ctx.Db.DungeonLayout.Id.Find(layoutId) is not { } layout)
+        {
+            throw new Exception($"no dungeon layout {layoutId}");
+        }
+
+        long expires = ctx.Timestamp.MicrosecondsSinceUnixEpoch + (long)(PortalLifetimeSeconds * 1_000_000f);
+        var portal = ctx.Db.Portal.Insert(new Portal
+        {
+            Id = 0,
+            ZoneId = player.ZoneId,
+            X = player.X,
+            Y = player.Y,
+            LayoutId = layout.Id,
+            TargetZoneId = 0,
+            Kind = PortalEntrance,
+            ExpiresAtUs = (ulong)expires,
+        });
+        Log.Info($"debug portal {portal.Id} to {layout.Name} at ({player.X:0.0}, {player.Y:0.0}) "
+               + $"in zone {player.ZoneId}");
+    }
+
+    /// <summary>Inserts or replaces a dungeon layout and its portal drops. Called by the Unity editor.</summary>
+    [SpacetimeDB.Reducer]
+    public static void UpsertDungeonLayout(ReducerContext ctx, ushort id, string name, uint size,
+                                           float spawnX, float spawnY, float exitX, float exitY,
+                                           uint tint, uint lifetimeSeconds, List<LayoutDrop> drops)
+    {
+        if (id == RealmLayout)
+        {
+            throw new Exception("layout id 0 is the realm's own map");
+        }
+        // Refused, not rounded, for the same reason as the realm: a size that is
+        // not a whole number of chunks leaves tiles nothing can stand on.
+        if (size == 0 || size % (uint)ChunkSize != 0 || size > 1024)
+        {
+            throw new Exception($"layout size {size} must be a multiple of {ChunkSize}, up to 1024");
+        }
+        if (spawnX < 0f || spawnY < 0f || spawnX > size || spawnY > size
+            || exitX < 0f || exitY < 0f || exitX > size || exitY > size)
+        {
+            throw new Exception($"{name}: spawn and exit must both lie inside 0..{size}");
+        }
+
+        var row = new DungeonLayout
+        {
+            Id = id,
+            Name = name,
+            Size = size,
+            SpawnX = spawnX,
+            SpawnY = spawnY,
+            ExitX = exitX,
+            ExitY = exitY,
+            Tint = tint,
+            LifetimeSeconds = lifetimeSeconds,
+        };
+        if (ctx.Db.DungeonLayout.Id.Find(id) is null)
+        {
+            ctx.Db.DungeonLayout.Insert(row);
+        }
+        else
+        {
+            ctx.Db.DungeonLayout.Id.Update(row);
+        }
+
+        // Replaced wholesale, so removing an enemy from the list really stops it
+        // dropping this portal.
+        foreach (var old in ctx.Db.PortalDrop.LayoutId.Filter(id).Select(d => d.Id).ToList())
+        {
+            ctx.Db.PortalDrop.Id.Delete(old);
+        }
+        int kept = 0;
+        foreach (var drop in drops)
+        {
+            if (drop.EnemyDefId == 0 || drop.ChancePercent <= 0f)
+            {
+                continue;
+            }
+            ctx.Db.PortalDrop.Insert(new PortalDrop
+            {
+                Id = 0,
+                EnemyDefId = drop.EnemyDefId,
+                LayoutId = id,
+                ChancePercent = Math.Clamp(drop.ChancePercent, 0f, 100f),
+            });
+            kept++;
+        }
+
+        InvalidateLayout(id);
+        Log.Info($"dungeon layout {id} \"{name}\": {size}x{size}, {kept} portal drop(s)");
+    }
+
+    /// <summary>Removes a layout's terrain and spawner templates, before the editor re-pushes them.</summary>
+    [SpacetimeDB.Reducer]
+    public static void ClearLayout(ReducerContext ctx, ushort layoutId)
+    {
+        foreach (var id in ctx.Db.LayoutChunk.LayoutId.Filter(layoutId).Select(c => c.Id).ToList())
+        {
+            ctx.Db.LayoutChunk.Id.Delete(id);
+        }
+        foreach (var id in ctx.Db.LayoutSpawner.LayoutId.Filter(layoutId).Select(s => s.Id).ToList())
+        {
+            ctx.Db.LayoutSpawner.Id.Delete(id);
+        }
+        InvalidateLayout(layoutId);
+    }
+
+    /// <summary>Replaces one chunk of a dungeon layout's terrain. Called by the Unity editor.</summary>
+    [SpacetimeDB.Reducer]
+    public static void UpsertLayoutChunk(ReducerContext ctx, ushort layoutId, uint cell, List<TileData> tiles)
+    {
+        if (ctx.Db.DungeonLayout.Id.Find(layoutId) is null)
+        {
+            throw new Exception($"push dungeon layout {layoutId} before its terrain");
+        }
+
+        foreach (var existing in ctx.Db.LayoutChunk.LayoutId.Filter(layoutId))
+        {
+            if (existing.Cell == cell)
+            {
+                var updated = existing;
+                updated.Tiles = tiles;
+                ctx.Db.LayoutChunk.Id.Update(updated);
+                InvalidateLayout(layoutId);
+                return;
+            }
+        }
+        ctx.Db.LayoutChunk.Insert(new LayoutChunk { Id = 0, LayoutId = layoutId, Cell = cell, Tiles = tiles });
+        InvalidateLayout(layoutId);
+    }
+
+    /// <summary>Adds one spawner template to a layout. Called by the Unity editor.</summary>
+    [SpacetimeDB.Reducer]
+    public static void AddLayoutSpawner(ReducerContext ctx, ushort layoutId, List<AreaEntry> composition,
+                                        float x, float y, float radius,
+                                        ushort maxAlive, ushort intervalMs)
+    {
+        if (ctx.Db.DungeonLayout.Id.Find(layoutId) is not { } layout)
+        {
+            throw new Exception($"push dungeon layout {layoutId} before its spawners");
+        }
+        ctx.Db.LayoutSpawner.Insert(new LayoutSpawner
+        {
+            Id = 0,
+            LayoutId = layoutId,
+            Composition = composition,
+            X = Math.Clamp(x, 0f, layout.Size),
+            Y = Math.Clamp(y, 0f, layout.Size),
+            Radius = Math.Clamp(radius, 0f, layout.Size),
+            MaxAlive = Math.Clamp(maxAlive, (ushort)0, (ushort)200),
+            // Floored for the same reason as realm spawners: no interval is an
+            // enemy every tick.
+            IntervalMs = (ushort)Math.Clamp((int)intervalMs, 100, 60000),
+        });
+    }
+
+    public const byte ZoneRealm = 0;
+    public const byte ZoneDungeon = 1;
+
+    /// <summary>The realm's zone. Every <c>ZoneId</c> column defaults to it.</summary>
+    public const uint RealmZone = 1;
+
+    /// <summary>Creates the realm's zone row if this database predates zones.</summary>
+    /// <remarks>
+    /// Called from the tick as well as <c>Init</c>: republishing an existing
+    /// database does not run <c>Init</c> again, and a world with no zone rows
+    /// simulates nothing — every enemy frozen, every shot immortal.
+    /// </remarks>
+    private static void EnsureRealmZone(ReducerContext ctx)
+    {
+        if (ctx.Db.Zone.Id.Find(RealmZone) is null)
+        {
+            ctx.Db.Zone.Insert(new Zone
+            {
+                Id = RealmZone,
+                Kind = ZoneRealm,
+                LayoutId = 0,
+                CreatedAt = ctx.Timestamp,
+            });
+            Log.Info("realm zone created");
+        }
+    }
+
     [SpacetimeDB.Table(Accessor = "Player", Public = true)]
     public partial struct Player
     {
@@ -392,6 +1129,11 @@ public static partial class Module
         /// </remarks>
         [SpacetimeDB.Default((ushort)0)]
         public ushort ArmorBreakPercent;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>
@@ -668,6 +1410,10 @@ public static partial class Module
 
         public bool Crit;
         public byte Element;
+
+        /// <summary>Which zone it happened in, so a client can ignore other zones' numbers.</summary>
+        [SpacetimeDB.Default(1u)]
+        public uint ZoneId;
     }
 
     /// <summary>
@@ -750,6 +1496,11 @@ public static partial class Module
         /// <summary>Bullet art id, resolved client-side. 0 is the plain blob.</summary>
         [SpacetimeDB.Default(0)]
         public byte SpriteId;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>
@@ -781,6 +1532,11 @@ public static partial class Module
 
         /// <summary>Damage taken from the last hit, for a number to float up.</summary>
         public ushort LastDamage;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>
@@ -1161,6 +1917,11 @@ public static partial class Module
         /// </remarks>
         [SpacetimeDB.Default((byte)255)]
         public byte Biome;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>A spawner not tied to any biome.</summary>
@@ -1481,6 +2242,11 @@ public static partial class Module
         public bool Hit;
 
         public Timestamp FiredAt;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>How much damage of one element a thing takes, as a percentage.</summary>
@@ -1625,6 +2391,11 @@ public static partial class Module
         public byte BagKind;
 
         public List<BagItem> Items;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>
@@ -1693,7 +2464,13 @@ public static partial class Module
     }
 
     /// <summary>A live enemy.</summary>
+    /// <remarks>
+    /// Cells are looked up per zone. Two zones share cell coordinates, so a
+    /// lookup by cell alone would hand a realm bullet the monster standing at the
+    /// same spot in a dungeon.
+    /// </remarks>
     [SpacetimeDB.Table(Accessor = "Enemy", Public = true)]
+    [SpacetimeDB.Index.BTree(Accessor = "ZoneCell", Columns = new[] { nameof(ZoneId), nameof(Cell) })]
     public partial struct Enemy
     {
         [PrimaryKey]
@@ -1793,6 +2570,11 @@ public static partial class Module
         /// </remarks>
         [SpacetimeDB.Default(0ul)]
         public ulong PhaseEngagedUs;
+
+        /// <summary>Which zone this row belongs to. See <see cref="Zone"/>.</summary>
+        [SpacetimeDB.Default(1u)]
+        [SpacetimeDB.Index.BTree]
+        public uint ZoneId;
     }
 
     /// <summary>Deletes expired shots. Nothing else is scheduled.</summary>
@@ -1836,6 +2618,14 @@ public static partial class Module
         public int Active;
         public int Shots;
         public int Players;
+
+        /// <summary>Zones open when the metric was written, the realm included.</summary>
+        [SpacetimeDB.Default(0)]
+        public int Zones;
+
+        /// <summary>Players in the most crowded zone — the one a single tick pass pays for.</summary>
+        [SpacetimeDB.Default(0)]
+        public int BusiestZone;
     }
 
     [SpacetimeDB.Table(Accessor = "ShotCleanup", Scheduled = nameof(CleanUpShots), ScheduledAt = nameof(ScheduledAt))]
@@ -1863,6 +2653,7 @@ public static partial class Module
         // fresh database is an empty void until somebody remembers to call a
         // reducer, and "the map did not load" and "nobody generated one" look
         // identical from the client.
+        EnsureRealmZone(ctx);
         BuildRealm(ctx, 1337u);
 
         // Dummies are placed against the map that was just generated, not at a
@@ -1875,7 +2666,7 @@ public static partial class Module
             float radius = 0.4f + i * 0.15f;
             float x = sx - 8f + i * 4f;
             float y = sy + 8f;
-            if (Blocked(ctx, x, y))
+            if (GroundOf(ctx, RealmLayout).Blocked(x, y))
             {
                 continue;
             }
@@ -1889,6 +2680,7 @@ public static partial class Module
                 MaxHp = 200,
                 LastHitAt = ctx.Timestamp,
                 LastDamage = 0,
+                ZoneId = RealmZone,
             });
             placed++;
         }
@@ -1914,8 +2706,6 @@ public static partial class Module
         //
         // Logged when the picture changes, not on a timer. A heartbeat at twenty
         // lines a second is unreadable, and one every ten seconds misses anything
-        // shorter than ten seconds — which is most of what you want to catch., not on a timer. A heartbeat at twenty
-        // lines a second is unreadable, and one every ten seconds misses anything
         // shorter than ten seconds — which is most of what you want to catch.
         int online = ctx.Db.Player.Iter().Count(p => p.Online);
         var snapshot = (ActiveEnemies, DormantEnemies, online);
@@ -1934,7 +2724,6 @@ public static partial class Module
         // Ids are collected before deleting: removing rows while iterating the
         // table that produced them skips entries.
         var finished = new List<ulong>();
-        var dummies = ctx.Db.Dummy.Iter().ToList();
         // CharacterId 0 is somebody sitting at the character screen. They have a
         // row and a position, but nobody is playing them — so nothing should
         // shoot at them, and they should not wake enemies.
@@ -1945,17 +2734,131 @@ public static partial class Module
         var config = Config(ctx);
         var catalogue = Catalogue.Read(ctx);
 
-        // Only the enemies anybody could interact with this tick. Everything past
-        // that would have been read, skipped as dormant, and thrown away — which
-        // measured at ~29us each, so a populated map spent most of the tick
-        // deciding to do nothing.
-        var enemies = NearbyEnemies(ctx, players, catalogue);
         AdvancePlayers(ctx, config);
-        AdvanceEnemies(ctx, enemies, players, nowUs, catalogue);
-        RunSpawners(ctx, enemies, nowUs);
         ExpireBags(ctx, nowUs);
         ExpireTracers(ctx, nowUs);
+        ExpirePortals(ctx, nowUs);
 
+        // One pass per zone. Enemies, dummies, spawners and shots are all read
+        // through that zone's index, so a dungeon's bullets cannot touch the
+        // realm's monsters.
+        //
+        // The realm is simulated whether or not anyone is in it, as the single
+        // world always was: spawners refill and shots keep flying. A dungeon with
+        // nobody inside is not simulated at all, and is closed after a grace
+        // period — so an abandoned run costs one skipped iteration, then nothing.
+        EnsureRealmZone(ctx);
+        var byZone = players.GroupBy(p => p.ZoneId).ToDictionary(g => g.Key, g => g.ToList());
+        int simulated = 0, active = 0, dormant = 0, shotsSeen = 0, playersSeen = 0;
+        int zones = 0, busiest = 0;
+        foreach (var zone in ctx.Db.Zone.Iter().ToList())
+        {
+            var here = byZone.TryGetValue(zone.Id, out var inZone) ? inZone : new List<Player>();
+            playersSeen += here.Count;
+
+            if (zone.Kind == ZoneDungeon)
+            {
+                var row = zone;
+                if (here.Count > 0 && row.EmptySinceUs != 0)
+                {
+                    row.EmptySinceUs = 0;
+                    ctx.Db.Zone.Id.Update(row);
+                }
+                else if (here.Count == 0 && row.EmptySinceUs == 0)
+                {
+                    row.EmptySinceUs = (ulong)nowUs;
+                    ctx.Db.Zone.Id.Update(row);
+                }
+
+                bool expired = row.ClosesAtUs != 0 && (ulong)nowUs >= row.ClosesAtUs;
+                bool abandoned = here.Count == 0 && row.EmptySinceUs != 0
+                    && nowUs - (long)row.EmptySinceUs >= (long)(EmptyZoneGraceSeconds * 1_000_000f);
+                if (expired || abandoned)
+                {
+                    CloseZone(ctx, row, expired ? "its time ran out" : "nobody came back");
+                    continue;
+                }
+                if (here.Count == 0)
+                {
+                    // Counted, or the orphan check below would report this run's
+                    // leftover shots as belonging to no zone.
+                    shotsSeen += ctx.Db.Shot.ZoneId.Filter(zone.Id).Count();
+                    zones++;
+                    continue;
+                }
+            }
+
+            zones++;
+            busiest = Math.Max(busiest, here.Count);
+
+            // Only the enemies anybody could interact with this tick. Everything past
+            // that would have been read, skipped as dormant, and thrown away — which
+            // measured at ~29us each, so a populated map spent most of the tick
+            // deciding to do nothing.
+            var enemies = NearbyEnemies(ctx, zone.Id, here, catalogue);
+            var (zoneActive, zoneDormant) = AdvanceEnemies(ctx, enemies, here, nowUs, catalogue, ZoneGround(ctx, zone.Id));
+            active += zoneActive;
+            dormant += zoneDormant;
+            RunSpawners(ctx, zone.Id, enemies, nowUs);
+
+            var dummies = ctx.Db.Dummy.ZoneId.Filter(zone.Id).ToList();
+            shotsSeen += CollideShots(ctx, zone.Id, catalogue, enemies, here, dummies,
+                                      nowUs, step, finished);
+            simulated += enemies.Count;
+        }
+
+        ActiveEnemies = active;
+        ZonesLive = zones;
+        BusiestZonePlayers = busiest;
+
+        // Everything the cell filter never read counts as dormant too, otherwise
+        // the saving this exists for would not show up in the number that
+        // measures it.
+        DormantEnemies = dormant + ((int)ctx.Db.Enemy.Count - simulated);
+
+        // A row whose zone has no Zone row is never simulated: a shot that never
+        // expires, a player nothing can hit. Counted and said out loud, because
+        // from the client it would look like the game had quietly stopped.
+        var orphans = ((int)ctx.Db.Shot.Count - shotsSeen, players.Count - playersSeen);
+        if (orphans != _lastOrphans)
+        {
+            _lastOrphans = orphans;
+            if (orphans != (0, 0))
+            {
+                Log.Warn($"{orphans.Item1} shot(s) and {orphans.Item2} player(s) are in a "
+                       + "zone that does not exist, and are not being simulated");
+            }
+        }
+
+        foreach (ulong id in finished)
+        {
+            ctx.Db.Shot.Id.Delete(id);
+        }
+
+        RecordTick(ctx, nowUs, simulated, players.Count);
+    }
+
+    private static (int, int) _lastOrphans;
+
+    /// <summary>Zones open, and players in the busiest, as of the last tick. For the metric row.</summary>
+    private static int ZonesLive, BusiestZonePlayers;
+
+    /// <summary>
+    /// Resolves one zone's shots against that zone's targets.
+    /// </summary>
+    /// <remarks>
+    /// Split out of the tick when zones arrived, otherwise unchanged. Every list
+    /// passed in must belong to <paramref name="zone"/>; mixing them is exactly
+    /// how a realm bullet would hit something standing in a dungeon.
+    ///
+    /// Returns how many shots it looked at, so the tick can notice rows that no
+    /// zone ever reached.
+    /// </remarks>
+    private static int CollideShots(ReducerContext ctx, uint zone, Catalogue catalogue,
+                                    List<Enemy> enemies, List<Player> players,
+                                    List<Dummy> dummies, long nowUs, float step,
+                                    List<ulong> finished)
+    {
         // Hoisted out of the shot loop below. Both are per-enemy and constant for
         // the whole tick, but they sat in the innermost scope — recomputed once
         // per shot per candidate enemy, so their cost grew with the product of
@@ -1987,8 +2890,11 @@ public static partial class Module
             }
         }
 
-        foreach (var shot in ctx.Db.Shot.Iter())
+        int seen = 0;
+        var ground = ZoneGround(ctx, zone);
+        foreach (var shot in ctx.Db.Shot.ZoneId.Filter(zone).ToList())
         {
+            seen++;
             float age = (nowUs - shot.SpawnedAt.MicrosecondsSinceUnixEpoch) / 1_000_000f;
             if (age * 1000f > shot.LifetimeMs)
             {
@@ -2010,7 +2916,7 @@ public static partial class Module
 
             // Walls first. A shot that has already buried itself in rock should
             // not go on to hit whatever is standing on the other side of it.
-            if (HitsWall(ctx, ax, ay, bx, by))
+            if (ground.HitsWall(ax, ay, bx, by))
             {
                 finished.Add(shot.Id);
                 continue;
@@ -2073,12 +2979,7 @@ public static partial class Module
             }
         }
 
-        foreach (ulong id in finished)
-        {
-            ctx.Db.Shot.Id.Delete(id);
-        }
-
-        RecordTick(ctx, nowUs, enemies.Count, players.Count);
+        return seen;
     }
 
     /// <summary>
@@ -2141,6 +3042,8 @@ public static partial class Module
         row.Active = ActiveEnemies;
         row.Shots = (int)ctx.Db.Shot.Count;
         row.Players = players;
+        row.Zones = ZonesLive;
+        row.BusiestZone = BusiestZonePlayers;
 
         if (metric is null)
         {
@@ -2377,34 +3280,6 @@ public static partial class Module
         return length <= 0.0001f ? (0f, 0f) : (x / length, y / length);
     }
 
-    /// <summary>
-    /// Whether a shot's path this tick ran into projectile-blocking terrain.
-    /// </summary>
-    /// <remarks>
-    /// Sampled along the segment rather than only at its end. A fast shot covers
-    /// several tiles in one tick, and testing just the endpoint would let it pass
-    /// clean through a wall and reappear beyond it.
-    /// </remarks>
-    private static bool HitsWall(ReducerContext ctx, float ax, float ay, float bx, float by)
-    {
-        float dx = bx - ax;
-        float dy = by - ay;
-        float distance = MathF.Sqrt(dx * dx + dy * dy);
-
-        // A sample every half tile: close enough that nothing thinner than half a
-        // tile can be missed, and tiles are never thinner than one.
-        int steps = (int)(distance / 0.5f) + 1;
-        for (int i = 0; i <= steps; i++)
-        {
-            float t = (float)i / steps;
-            if (BlocksProjectiles(ctx, ax + dx * t, ay + dy * t))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /// <summary>Whether the segment a-b passes within <paramref name="radius"/> of a point.</summary>
     private static bool SegmentHitsCircle(float ax, float ay, float bx, float by,
                                           float cx, float cy, float radius)
@@ -2431,9 +3306,9 @@ public static partial class Module
     /// are still analytic and players are still driven by their own input; this is
     /// the only per-tick simulation in the module, which is worth keeping true.
     /// </remarks>
-    private static void AdvanceEnemies(ReducerContext ctx, List<Enemy> enemies,
+    private static (int active, int dormant) AdvanceEnemies(ReducerContext ctx, List<Enemy> enemies,
                                        List<Player> players, long nowUs,
-                                       Catalogue catalogue)
+                                       Catalogue catalogue, Ground ground)
     {
         float time = (float)(nowUs / 1_000_000.0 % 3600.0);
 
@@ -2452,9 +3327,7 @@ public static partial class Module
                     enemies[i] = cleared;
                 }
             }
-            DormantEnemies = (int)ctx.Db.Enemy.Count - enemies.Count;
-            ActiveEnemies = 0;
-            return;
+            return (0, 0);
         }
 
         int active = 0;
@@ -2513,7 +3386,7 @@ public static partial class Module
                 {
                     speed *= 0.5f;
                 }
-                var (ex, ey) = Slide(ctx, enemy.X, enemy.Y,
+                var (ex, ey) = ground.Slide(enemy.X, enemy.Y,
                                      dx * speed * TickSeconds,
                                      dy * speed * TickSeconds);
                 Reposition(ref enemy, ex, ey);
@@ -2543,7 +3416,7 @@ public static partial class Module
                 float length = MathF.Sqrt(aimX * aimX + aimY * aimY);
                 if (length > 0.0001f)
                 {
-                    FireVolley(ctx, weapon, 1, enemy.X, enemy.Y, aimX / length, aimY / length);
+                    FireVolley(ctx, enemy.ZoneId, weapon, 1, enemy.X, enemy.Y, aimX / length, aimY / length);
                     enemy.NextShotAt = ctx.Timestamp + new TimeDuration(weapon.FireRateMs * 1000L);
                 }
             }
@@ -2569,12 +3442,9 @@ public static partial class Module
             }
         }
 
-        ActiveEnemies = active;
-
-        // Everything the cell filter never read counts as dormant too, otherwise
-        // the saving this exists for would not show up in the number that
-        // measures it.
-        DormantEnemies = dormant + ((int)ctx.Db.Enemy.Count - enemies.Count);
+        // Summed across zones by the tick, which is the only place that knows
+        // how many enemies no zone read at all.
+        return (active, dormant);
     }
 
     /// <summary>
@@ -2595,7 +3465,7 @@ public static partial class Module
     /// Duplicate cells are collapsed through a set, so players standing together
     /// cost one read rather than one each.
     /// </remarks>
-    private static List<Enemy> NearbyEnemies(ReducerContext ctx, List<Player> players,
+    private static List<Enemy> NearbyEnemies(ReducerContext ctx, uint zone, List<Player> players,
                                              Catalogue catalogue)
     {
         float reach = SimulationRadius;
@@ -2613,7 +3483,7 @@ public static partial class Module
         {
             AddCells(cells, player.X, player.Y, reach);
         }
-        foreach (var shot in ctx.Db.Shot.Iter())
+        foreach (var shot in ctx.Db.Shot.ZoneId.Filter(zone))
         {
             // The origin, not where it is now: the collision pass sweeps the
             // segment travelled since the last tick, so both ends have to be
@@ -2624,7 +3494,7 @@ public static partial class Module
         var found = new List<Enemy>();
         foreach (uint cell in cells)
         {
-            foreach (var enemy in ctx.Db.Enemy.Cell.Filter(cell))
+            foreach (var enemy in ctx.Db.Enemy.ZoneCell.Filter((zone, cell)))
             {
                 found.Add(enemy);
             }
@@ -2690,9 +3560,10 @@ public static partial class Module
     /// anything that forgets to decrement it, and then the spawner either stops
     /// forever or never stops.
     /// </remarks>
-    private static void RunSpawners(ReducerContext ctx, List<Enemy> enemies, long nowUs)
+    private static void RunSpawners(ReducerContext ctx, uint zone, List<Enemy> enemies, long nowUs)
     {
-        foreach (var spawner in ctx.Db.Spawner.Iter().ToList())
+        var ground = ZoneGround(ctx, zone);
+        foreach (var spawner in ctx.Db.Spawner.ZoneId.Filter(zone).ToList())
         {
             if (nowUs < spawner.NextSpawnAt.MicrosecondsSinceUnixEpoch)
             {
@@ -2742,13 +3613,13 @@ public static partial class Module
             {
                 double angle = ctx.Rng.NextDouble() * Math.Tau;
                 double distance = spawner.Radius * Math.Sqrt(ctx.Rng.NextDouble());
-                x = Clamp(spawner.X + (float)(Math.Cos(angle) * distance));
-                y = Clamp(spawner.Y + (float)(Math.Sin(angle) * distance));
+                x = ground.Clamp(spawner.X + (float)(Math.Cos(angle) * distance));
+                y = ground.Clamp(spawner.Y + (float)(Math.Sin(angle) * distance));
 
-                var tile = TileAt(ctx, x, y);
+                var tile = ground.TileAt(x, y);
                 placed = tile.SpawnWeight > 0
                       && (spawner.Biome == AnyBiome || tile.Biome == spawner.Biome)
-                      && !Blocked(ctx, x, y);
+                      && !ground.Blocked(x, y);
             }
             if (!placed)
             {
@@ -2776,6 +3647,7 @@ public static partial class Module
                 LastHitAt = ctx.Timestamp,
                 LastDamage = 0,
                 Phase = (float)(ctx.Rng.NextDouble() * Math.Tau),
+                ZoneId = spawner.ZoneId,
             });
 
             // The local list is kept current, so a second spawner in the same tick
@@ -2872,6 +3744,7 @@ public static partial class Module
             // biome under its centre would silently shrink camps that were
             // deliberately placed on a border.
             Biome = AnyBiome,
+            ZoneId = RealmZone,
         };
 
         if (ctx.Db.Spawner.Id.Find(id) is null)
@@ -2929,22 +3802,162 @@ public static partial class Module
     // A static, because modules run single-threaded in one long-lived instance.
     // If that ever stops being true this has to become thread-local.
 
-    private static TileData[]? _terrain;
-    private static int _terrainSpan;
-
-    /// <summary>Drops the cache so the next read rebuilds it.</summary>
-    private static void InvalidateTerrain() => _terrain = null;
-
-    /// <summary>The terrain, loading it from chunk rows if needed.</summary>
-    private static TileData[] Terrain(ReducerContext ctx)
+    /// <summary>
+    /// One layout's terrain, flattened for collision.
+    /// </summary>
+    /// <remarks>
+    /// A class that callers must ask for by layout, rather than the global array
+    /// this used to be. With one global map a dungeon's walls would silently be
+    /// the realm's walls — players walking through rock the client draws, with
+    /// nothing failing anywhere. Now every wall test names whose ground it means.
+    /// </remarks>
+    private sealed class Ground
     {
-        if (_terrain is not null)
+        public readonly TileData[] Tiles;
+        public readonly int Span;
+
+        /// <summary>The playable square, 0 to this, in tiles.</summary>
+        public readonly float Size;
+
+        public Ground(TileData[] tiles, int span, float size)
         {
-            return _terrain;
+            Tiles = tiles;
+            Span = span;
+            Size = size;
         }
 
-        _terrainSpan = (int)Math.Ceiling(WorldSize / ChunkSize) * ChunkSize;
-        var tiles = new TileData[_terrainSpan * _terrainSpan];
+        /// <summary>The tile at a world position. Outside the map counts as solid.</summary>
+        public TileData TileAt(float worldX, float worldY)
+        {
+            int x = (int)MathF.Floor(worldX);
+            int y = (int)MathF.Floor(worldY);
+            if (x < 0 || y < 0 || x >= Span || y >= Span)
+            {
+                return new TileData { Flags = 0b11, SpawnWeight = 0, Hazard = 0, Biome = 0 };
+            }
+            return Tiles[y * Span + x];
+        }
+
+        public bool BlocksMovement(float x, float y) => (TileAt(x, y).Flags & 1) != 0;
+
+        public bool BlocksProjectiles(float x, float y) => (TileAt(x, y).Flags & 2) != 0;
+
+        /// <summary>
+        /// Whether a body centred here would overlap solid ground.
+        /// </summary>
+        /// <remarks>
+        /// Four corners of the body's box, not its centre. Testing the centre alone
+        /// lets half a body sink into a wall before anything notices, and at a
+        /// player radius of 0.4 that is nearly half a tile.
+        /// </remarks>
+        public bool Blocked(float x, float y)
+        {
+            const float r = PlayerRadius;
+            return BlocksMovement(x - r, y - r)
+                || BlocksMovement(x + r, y - r)
+                || BlocksMovement(x - r, y + r)
+                || BlocksMovement(x + r, y + r);
+        }
+
+        /// <summary>Whether the segment a-b crosses anything that stops a projectile.</summary>
+        public bool HitsWall(float ax, float ay, float bx, float by)
+        {
+            float dx = bx - ax;
+            float dy = by - ay;
+            float distance = MathF.Sqrt(dx * dx + dy * dy);
+
+            // A sample every half tile: close enough that nothing thinner than half a
+            // tile can be missed, and tiles are never thinner than one.
+            int steps = (int)(distance / 0.5f) + 1;
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = (float)i / steps;
+                if (BlocksProjectiles(ax + dx * t, ay + dy * t))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Moves a body, one axis at a time so it slides along walls.</summary>
+        public (float x, float y) Slide(float x, float y, float dx, float dy)
+        {
+            float nextX = Clamp(x + dx);
+            if (!Blocked(nextX, y))
+            {
+                x = nextX;
+            }
+
+            float nextY = Clamp(y + dy);
+            if (!Blocked(x, nextY))
+            {
+                y = nextY;
+            }
+
+            return (x, y);
+        }
+
+        public float Clamp(float v) => v < 0f ? 0f : (v > Size ? Size : v);
+    }
+
+    /// <summary>Layout id of the realm's own map, which lives in <see cref="TerrainChunk"/>.</summary>
+    public const ushort RealmLayout = 0;
+
+    private static readonly Dictionary<ushort, Ground> _grounds = new();
+
+    /// <summary>
+    /// Ground with no tiles, so every position is solid.
+    /// </summary>
+    /// <remarks>
+    /// What a player standing in a zone that does not exist gets: they cannot
+    /// move, and the tick reports them as orphaned. Borrowing the realm's ground
+    /// instead would let them walk around a map nobody else is on.
+    /// </remarks>
+    private static readonly Ground Nowhere = new(Array.Empty<TileData>(), 0, 0f);
+
+    /// <summary>Drops the realm's cached terrain so the next read rebuilds it.</summary>
+    private static void InvalidateTerrain() => _grounds.Remove(RealmLayout);
+
+    /// <summary>Drops one dungeon layout's cached terrain.</summary>
+    private static void InvalidateLayout(ushort layoutId) => _grounds.Remove(layoutId);
+
+    /// <summary>A layout's terrain, loading it from chunk rows if needed.</summary>
+    private static Ground GroundOf(ReducerContext ctx, ushort layoutId)
+    {
+        if (_grounds.TryGetValue(layoutId, out var cached))
+        {
+            return cached;
+        }
+
+        Ground built;
+        if (layoutId == RealmLayout)
+        {
+            built = BuildRealmGround(ctx);
+        }
+        else if (ctx.Db.DungeonLayout.Id.Find(layoutId) is { } layout)
+        {
+            built = BuildLayoutGround(ctx, layout);
+        }
+        else
+        {
+            // Not cached, so pushing the layout later is picked up immediately.
+            Log.Warn($"terrain asked for layout {layoutId}, which has not been pushed");
+            return Nowhere;
+        }
+
+        _grounds[layoutId] = built;
+        return built;
+    }
+
+    /// <summary>The terrain of whichever layout a zone uses.</summary>
+    private static Ground ZoneGround(ReducerContext ctx, uint zoneId) =>
+        ctx.Db.Zone.Id.Find(zoneId) is { } zone ? GroundOf(ctx, zone.LayoutId) : Nowhere;
+
+    private static Ground BuildRealmGround(ReducerContext ctx)
+    {
+        int span = (int)Math.Ceiling(WorldSize / ChunkSize) * ChunkSize;
+        var tiles = new TileData[span * span];
 
         // Untouched ground is open and spawnable. An area with no terrain pushed
         // yet behaves exactly as it did before terrain existed, rather than
@@ -2956,41 +3969,57 @@ public static partial class Module
 
         foreach (var chunk in ctx.Db.TerrainChunk.Iter())
         {
-            int cx = (int)(chunk.Cell >> 16);
-            int cy = (int)(chunk.Cell & 0xFFFF);
-            for (int i = 0; i < chunk.Tiles.Count && i < ChunkSize * ChunkSize; i++)
+            CopyChunk(tiles, span, chunk.Cell, chunk.Tiles);
+        }
+        return new Ground(tiles, span, WorldSize);
+    }
+
+    private static Ground BuildLayoutGround(ReducerContext ctx, DungeonLayout layout)
+    {
+        int span = (int)Math.Ceiling(layout.Size / (float)ChunkSize) * ChunkSize;
+        var tiles = new TileData[span * span];
+
+        // Solid where nothing was pushed, the opposite of the realm. A dungeon
+        // missing a chunk should have a wall there, not a hole into open ground
+        // that leads off the edge of the authored rooms.
+        for (int i = 0; i < tiles.Length; i++)
+        {
+            tiles[i] = new TileData { Flags = 0b11, SpawnWeight = 0, Hazard = 0, Biome = 0 };
+        }
+
+        foreach (var chunk in ctx.Db.LayoutChunk.LayoutId.Filter(layout.Id))
+        {
+            CopyChunk(tiles, span, chunk.Cell, chunk.Tiles);
+        }
+        return new Ground(tiles, span, layout.Size);
+    }
+
+    private static void CopyChunk(TileData[] tiles, int span, uint cell, List<TileData> chunk)
+    {
+        int cx = (int)(cell >> 16);
+        int cy = (int)(cell & 0xFFFF);
+        for (int i = 0; i < chunk.Count && i < ChunkSize * ChunkSize; i++)
+        {
+            int x = cx * ChunkSize + i % ChunkSize;
+            int y = cy * ChunkSize + i / ChunkSize;
+            if (x < span && y < span)
             {
-                int x = cx * ChunkSize + i % ChunkSize;
-                int y = cy * ChunkSize + i / ChunkSize;
-                if (x < _terrainSpan && y < _terrainSpan)
-                {
-                    tiles[y * _terrainSpan + x] = chunk.Tiles[i];
-                }
+                tiles[y * span + x] = chunk[i];
             }
         }
-
-        _terrain = tiles;
-        return _terrain;
     }
 
-    /// <summary>The tile at a world position. Outside the map counts as solid.</summary>
-    private static TileData TileAt(ReducerContext ctx, float worldX, float worldY)
+    /// <summary>Where a player arriving in a zone appears.</summary>
+    private static (float x, float y) ZoneSpawn(ReducerContext ctx, uint zoneId)
     {
-        var tiles = Terrain(ctx);
-        int x = (int)MathF.Floor(worldX);
-        int y = (int)MathF.Floor(worldY);
-        if (x < 0 || y < 0 || x >= _terrainSpan || y >= _terrainSpan)
+        if (ctx.Db.Zone.Id.Find(zoneId) is { Kind: ZoneDungeon } zone
+            && ctx.Db.DungeonLayout.Id.Find(zone.LayoutId) is { } layout)
         {
-            return new TileData { Flags = 0b11, SpawnWeight = 0, Hazard = 0, Biome = 0 };
+            return (layout.SpawnX, layout.SpawnY);
         }
-        return tiles[y * _terrainSpan + x];
+        return SpawnPoint(ctx);
     }
 
-    private static bool BlocksMovement(ReducerContext ctx, float x, float y) =>
-        (TileAt(ctx, x, y).Flags & 1) != 0;
-
-    private static bool BlocksProjectiles(ReducerContext ctx, float x, float y) =>
-        (TileAt(ctx, x, y).Flags & 2) != 0;
 
     /// <summary>
     /// Writes one chunk row without touching the cache.
@@ -3060,7 +4089,7 @@ public static partial class Module
 
         foreach (var player in ctx.Db.Player.Iter().ToList())
         {
-            if (Blocked(ctx, player.X, player.Y))
+            if (player.ZoneId == RealmZone && GroundOf(ctx, RealmLayout).Blocked(player.X, player.Y))
             {
                 var moved = player;
                 moved.X = spawn.X;
@@ -3175,9 +4204,9 @@ public static partial class Module
             // rock cannot walk out in any direction. Checked every tick rather
             // than only on push, because a spawner or a later feature could move
             // someone into geometry just as easily.
-            if (Blocked(ctx, updated.X, updated.Y))
+            if (ZoneGround(ctx, updated.ZoneId).Blocked(updated.X, updated.Y))
             {
-                var (sx, sy) = SpawnPoint(ctx);
+                var (sx, sy) = ZoneSpawn(ctx, updated.ZoneId);
                 updated.X = sx;
                 updated.Y = sy;
                 changed = true;
@@ -3516,6 +4545,7 @@ public static partial class Module
             Amount = amount,
             Crit = shot.Crit,
             Element = shot.Element,
+            ZoneId = enemy.ZoneId,
         });
 
         // Still written, and still the wrong thing to read for a volley. It is
@@ -3530,6 +4560,7 @@ public static partial class Module
             if (ctx.Db.EnemyDef.Id.Find(enemy.DefId) is { } killedDef)
             {
                 RecordKill(ctx, enemy, killedDef, killer);
+                TrySpawnPortal(ctx, enemy);
             }
             ctx.Db.Enemy.Id.Delete(enemy.Id);
         }
@@ -3658,6 +4689,14 @@ public static partial class Module
         if (ctx.Db.Player.Identity.Find(ctx.Sender) is { } existing)
         {
             existing.Online = true;
+            // A zone that closed while they were away — or a row from before
+            // disconnecting returned people to the realm. Put back loudly rather
+            // than left standing on ground that no longer exists.
+            if (ctx.Db.Zone.Id.Find(existing.ZoneId) is null)
+            {
+                Log.Warn($"{existing.Name} reconnected into zone {existing.ZoneId}, which is gone");
+                LeaveZone(ctx, ref existing);
+            }
             ctx.Db.Player.Identity.Update(existing);
             Log.Info($"welcome back {ctx.Sender}");
             return;
@@ -3675,6 +4714,7 @@ public static partial class Module
             MaxHp = Config(ctx).MaxHp,
             LastHitAt = ctx.Timestamp,
             RegenPool = 0f,
+            ZoneId = RealmZone,
         });
         // No character, and none made here. Connecting means arriving at the
         // character screen; who you play is a choice, and a client that was
@@ -3688,6 +4728,12 @@ public static partial class Module
         if (ctx.Db.Player.Identity.Find(ctx.Sender) is { } player)
         {
             // Or they reconnect rooted to a bag that is long gone.
+            // Out of any dungeon, so an empty run can close and nobody reconnects
+            // into one that already has.
+            if (player.ZoneId != RealmZone)
+            {
+                LeaveZone(ctx, ref player);
+            }
             player.LootingBag = 0;
             player.Online = false;
             ctx.Db.Player.Identity.Update(player);
@@ -3760,7 +4806,7 @@ public static partial class Module
                 step *= SlowFactor;
             }
 
-            var (x, y) = Slide(ctx, player.X, player.Y, dirX * inv * step, dirY * inv * step);
+            var (x, y) = ZoneGround(ctx, player.ZoneId).Slide(player.X, player.Y, dirX * inv * step, dirY * inv * step);
             player.X = x;
             player.Y = y;
             ctx.Db.Player.Identity.Update(player);
@@ -3847,7 +4893,7 @@ public static partial class Module
         {
             // Shoved along the reverse of the aim, through the same Slide the
             // player walks with — so recoil cannot push anybody through a wall.
-            var (kx, ky) = Slide(ctx, player.X, player.Y,
+            var (kx, ky) = ZoneGround(ctx, player.ZoneId).Slide(player.X, player.Y,
                                  -dirX * weapon.Kickback, -dirY * weapon.Kickback);
             player.X = kx;
             player.Y = ky;
@@ -3868,7 +4914,7 @@ public static partial class Module
 
         // The same path enemy fire takes. A separate implementation for players
         // would be a second place for patterns, spin and waves to be got wrong.
-        FireVolley(ctx, weapon, 0, player.X, player.Y, dirX, dirY,
+        FireVolley(ctx, player.ZoneId, weapon, 0, player.X, player.Y, dirX, dirY,
                    config.CritChance, config.CritMultiplier);
 
         // Dexterity divides: 2 is twice as fast, which is the way round a player
@@ -3888,7 +4934,7 @@ public static partial class Module
     /// helix behaves identically to a player holding that weapon. A parallel
     /// implementation for enemies would be a second place to get patterns wrong.
     /// </remarks>
-    private static void FireVolley(ReducerContext ctx, WeaponDef weapon, byte faction,
+    private static void FireVolley(ReducerContext ctx, uint zone, WeaponDef weapon, byte faction,
                                    float x, float y, float dirX, float dirY,
                                    float critChance = 0f, float critMultiplier = 1f)
     {
@@ -3943,6 +4989,7 @@ public static partial class Module
                 Id = 0,
                 Owner = ctx.Sender,
                 Faction = faction,
+                ZoneId = zone,
                 OriginX = x + -sdy * place.Lateral,
                 OriginY = y + sdx * place.Lateral,
                 DirX = sdx,
@@ -4254,6 +5301,7 @@ public static partial class Module
             LastDamage = 0,
             // Its own phase, so a group does not move in lockstep.
             Phase = (float)(ctx.Rng.NextDouble() * Math.Tau),
+            ZoneId = RealmZone,
         });
     }
 
@@ -4729,6 +5777,8 @@ public static partial class Module
         player.Hp = player.MaxHp;
         player.X = sx;
         player.Y = sy;
+        // Death always sends you back to the realm, wherever you fell.
+        player.ZoneId = RealmZone;
         player.LootingBag = 0;
         player.RegenPool = 0f;
         player.WeaponId = 0;
@@ -5061,7 +6111,7 @@ public static partial class Module
 
         float dx = player.X - bag.X;
         float dy = player.Y - bag.Y;
-        if (dx * dx + dy * dy > PickupRange * PickupRange)
+        if (bag.ZoneId != player.ZoneId || dx * dx + dy * dy > PickupRange * PickupRange)
         {
             throw new Exception("too far from that bag");
         }
@@ -5123,7 +6173,7 @@ public static partial class Module
 
         float dx = player.X - bag.X;
         float dy = player.Y - bag.Y;
-        if (dx * dx + dy * dy > PickupRange * PickupRange)
+        if (bag.ZoneId != player.ZoneId || dx * dx + dy * dy > PickupRange * PickupRange)
         {
             throw new Exception("too far from that bag");
         }
@@ -5203,7 +6253,7 @@ public static partial class Module
 
         float dx = player.X - bag.X;
         float dy = player.Y - bag.Y;
-        if (dx * dx + dy * dy > PickupRange * PickupRange)
+        if (bag.ZoneId != player.ZoneId || dx * dx + dy * dy > PickupRange * PickupRange)
         {
             throw new Exception("too far from that bag");
         }
@@ -5543,6 +6593,7 @@ public static partial class Module
         player.Hp = player.MaxHp;
         player.X = sx;
         player.Y = sy;
+        player.ZoneId = RealmZone;
         player.LootingBag = 0;
         ctx.Db.Player.Identity.Update(player);
 
@@ -5557,6 +6608,10 @@ public static partial class Module
         if (ctx.Db.Player.Identity.Find(ctx.Sender) is not { CharacterId: not 0 } player)
         {
             return;
+        }
+        if (player.ZoneId != RealmZone)
+        {
+            LeaveZone(ctx, ref player);
         }
         player.CharacterId = 0;
         player.LootingBag = 0;
@@ -5638,7 +6693,9 @@ public static partial class Module
         var (sx, sy) = SpawnPoint(ctx);
         float dx = player.X - sx;
         float dy = player.Y - sy;
-        return dx * dx + dy * dy <= VaultRange * VaultRange;
+        // The vault stands at the realm's spawn. The same coordinates in a
+        // dungeon are somewhere else entirely.
+        return player.ZoneId == RealmZone && dx * dx + dy * dy <= VaultRange * VaultRange;
     }
 
     /// <summary>Banks one carried item. It then survives death.</summary>
@@ -5832,7 +6889,8 @@ public static partial class Module
         float share = weapon.SplitDamage && rays > 1 ? 1f / rays : 1f;
         float range = weapon.Range;
 
-        var enemies = ctx.Db.Enemy.Iter().ToList();
+        var enemies = ctx.Db.Enemy.ZoneId.Filter(player.ZoneId).ToList();
+        var ground = ZoneGround(ctx, player.ZoneId);
         float pushX = 0f;
         float pushY = 0f;
 
@@ -5864,7 +6922,7 @@ public static partial class Module
 
                 // Walls stop a ray outright, and stop it before anything standing
                 // behind them can be hit.
-                if (Blocked(ctx, px, py))
+                if (ground.Blocked(px, py))
                 {
                     endX = px;
                     endY = py;
@@ -5955,12 +7013,13 @@ public static partial class Module
                 Tint = weapon.Tint,
                 Hit = hit,
                 FiredAt = ctx.Timestamp,
+                ZoneId = player.ZoneId,
             });
         }
 
         if (pushX != 0f || pushY != 0f)
         {
-            var (kx, ky) = Slide(ctx, player.X, player.Y, pushX, pushY);
+            var (kx, ky) = ground.Slide(player.X, player.Y, pushX, pushY);
             player.X = kx;
             player.Y = ky;
         }
@@ -6105,6 +7164,7 @@ public static partial class Module
                 DroppedAt = ctx.Timestamp,
                 BagKind = bagKind,
                 Items = contents,
+                ZoneId = enemy.ZoneId,
             });
         }
 
@@ -6364,53 +7424,6 @@ public static partial class Module
             ? "flat"
             : $"{def.Profiles.Count} profile(s) {(def.ProfileAssignment == 1 ? "block" : "cycle")}";
         Log.Info($"weapon {id} \"{name}\": {def.Shots} shot(s), {def.FireRateMs}ms, {def.DamageMin}-{def.DamageMax}, {mixText}");
-    }
-
-    /// <summary>
-    /// Moves a body, sliding along whatever it runs into.
-    /// </summary>
-    /// <remarks>
-    /// The axes are resolved one at a time, X then Y. Resolving the combined
-    /// vector would stop the body dead whenever either component was blocked, so
-    /// walking diagonally into a wall would stick instead of sliding along it —
-    /// which is most of what makes movement feel bad next to geometry.
-    ///
-    /// The order is fixed rather than arbitrary. Anything that predicts this
-    /// movement has to reproduce it exactly, and X-then-Y is only reproducible if
-    /// it is always X-then-Y.
-    /// </remarks>
-    private static (float x, float y) Slide(ReducerContext ctx, float x, float y, float dx, float dy)
-    {
-        float nextX = Clamp(x + dx);
-        if (!Blocked(ctx, nextX, y))
-        {
-            x = nextX;
-        }
-
-        float nextY = Clamp(y + dy);
-        if (!Blocked(ctx, x, nextY))
-        {
-            y = nextY;
-        }
-
-        return (x, y);
-    }
-
-    /// <summary>
-    /// Whether a body centred here would overlap solid ground.
-    /// </summary>
-    /// <remarks>
-    /// Four corners of the body's box, not its centre. Testing the centre alone
-    /// lets half a body sink into a wall before anything notices, and at a
-    /// player radius of 0.4 that is nearly half a tile.
-    /// </remarks>
-    private static bool Blocked(ReducerContext ctx, float x, float y)
-    {
-        const float r = PlayerRadius;
-        return BlocksMovement(ctx, x - r, y - r)
-            || BlocksMovement(ctx, x + r, y - r)
-            || BlocksMovement(ctx, x - r, y + r)
-            || BlocksMovement(ctx, x + r, y + r);
     }
 
     private static float Clamp(float v) => v < 0f ? 0f : (v > WorldSize ? WorldSize : v);

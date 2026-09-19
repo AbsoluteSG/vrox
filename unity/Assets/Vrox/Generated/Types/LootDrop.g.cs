@@ -25,6 +25,8 @@ namespace SpacetimeDB.Types
         public byte BagKind;
         [DataMember(Name = "items")]
         public System.Collections.Generic.List<BagItem> Items;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public LootDrop(
             ulong Id,
@@ -32,7 +34,8 @@ namespace SpacetimeDB.Types
             float Y,
             SpacetimeDB.Timestamp DroppedAt,
             byte BagKind,
-            System.Collections.Generic.List<BagItem> Items
+            System.Collections.Generic.List<BagItem> Items,
+            uint ZoneId
         )
         {
             this.Id = Id;
@@ -41,6 +44,7 @@ namespace SpacetimeDB.Types
             this.DroppedAt = DroppedAt;
             this.BagKind = BagKind;
             this.Items = Items;
+            this.ZoneId = ZoneId;
         }
 
         public LootDrop()

@@ -25,6 +25,8 @@ namespace SpacetimeDB.Types
         public bool Crit;
         [DataMember(Name = "element")]
         public byte Element;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Hit(
             ulong EnemyId,
@@ -32,7 +34,8 @@ namespace SpacetimeDB.Types
             float Y,
             ushort Amount,
             bool Crit,
-            byte Element
+            byte Element,
+            uint ZoneId
         )
         {
             this.EnemyId = EnemyId;
@@ -41,6 +44,7 @@ namespace SpacetimeDB.Types
             this.Amount = Amount;
             this.Crit = Crit;
             this.Element = Element;
+            this.ZoneId = ZoneId;
         }
 
         public Hit()

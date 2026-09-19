@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly IdUniqueIndex Id;
 
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(Tracer row) => row.ZoneId;
+
+                public ZoneIdIndex(TracerHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal TracerHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(Tracer row) => row.Id;
@@ -48,6 +58,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Tracer, uint> Tint { get; }
         public global::SpacetimeDB.Col<Tracer, bool> Hit { get; }
         public global::SpacetimeDB.Col<Tracer, SpacetimeDB.Timestamp> FiredAt { get; }
+        public global::SpacetimeDB.Col<Tracer, uint> ZoneId { get; }
 
         public TracerCols(string tableName)
         {
@@ -60,16 +71,19 @@ namespace SpacetimeDB.Types
             Tint = new global::SpacetimeDB.Col<Tracer, uint>(tableName, "tint");
             Hit = new global::SpacetimeDB.Col<Tracer, bool>(tableName, "hit");
             FiredAt = new global::SpacetimeDB.Col<Tracer, SpacetimeDB.Timestamp>(tableName, "fired_at");
+            ZoneId = new global::SpacetimeDB.Col<Tracer, uint>(tableName, "zone_id");
         }
     }
 
     public sealed class TracerIxCols
     {
         public global::SpacetimeDB.IxCol<Tracer, ulong> Id { get; }
+        public global::SpacetimeDB.IxCol<Tracer, uint> ZoneId { get; }
 
         public TracerIxCols(string tableName)
         {
             Id = new global::SpacetimeDB.IxCol<Tracer, ulong>(tableName, "id");
+            ZoneId = new global::SpacetimeDB.IxCol<Tracer, uint>(tableName, "zone_id");
         }
     }
 }

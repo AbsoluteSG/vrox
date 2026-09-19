@@ -29,6 +29,8 @@ namespace SpacetimeDB.Types
         public SpacetimeDB.Timestamp LastHitAt;
         [DataMember(Name = "last_damage")]
         public ushort LastDamage;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Dummy(
             ulong Id,
@@ -38,7 +40,8 @@ namespace SpacetimeDB.Types
             ushort Hp,
             ushort MaxHp,
             SpacetimeDB.Timestamp LastHitAt,
-            ushort LastDamage
+            ushort LastDamage,
+            uint ZoneId
         )
         {
             this.Id = Id;
@@ -49,6 +52,7 @@ namespace SpacetimeDB.Types
             this.MaxHp = MaxHp;
             this.LastHitAt = LastHitAt;
             this.LastDamage = LastDamage;
+            this.ZoneId = ZoneId;
         }
 
         public Dummy()

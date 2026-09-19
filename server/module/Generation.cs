@@ -1061,6 +1061,7 @@ public static partial class Module
                 NextSpawnAt = ctx.Timestamp,
                 Source = SourceGenerated,
                 Biome = biomeId,
+                ZoneId = RealmZone,
             });
             placed++;
         }

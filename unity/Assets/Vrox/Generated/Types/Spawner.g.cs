@@ -33,6 +33,8 @@ namespace SpacetimeDB.Types
         public byte Source;
         [DataMember(Name = "biome")]
         public byte Biome;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Spawner(
             ushort Id,
@@ -44,7 +46,8 @@ namespace SpacetimeDB.Types
             ushort IntervalMs,
             SpacetimeDB.Timestamp NextSpawnAt,
             byte Source,
-            byte Biome
+            byte Biome,
+            uint ZoneId
         )
         {
             this.Id = Id;
@@ -57,6 +60,7 @@ namespace SpacetimeDB.Types
             this.NextSpawnAt = NextSpawnAt;
             this.Source = Source;
             this.Biome = Biome;
+            this.ZoneId = ZoneId;
         }
 
         public Spawner()

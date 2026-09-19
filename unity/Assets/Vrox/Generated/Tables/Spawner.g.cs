@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly IdUniqueIndex Id;
 
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(Spawner row) => row.ZoneId;
+
+                public ZoneIdIndex(SpawnerHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal SpawnerHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(Spawner row) => row.Id;
@@ -49,6 +59,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Spawner, SpacetimeDB.Timestamp> NextSpawnAt { get; }
         public global::SpacetimeDB.Col<Spawner, byte> Source { get; }
         public global::SpacetimeDB.Col<Spawner, byte> Biome { get; }
+        public global::SpacetimeDB.Col<Spawner, uint> ZoneId { get; }
 
         public SpawnerCols(string tableName)
         {
@@ -62,16 +73,19 @@ namespace SpacetimeDB.Types
             NextSpawnAt = new global::SpacetimeDB.Col<Spawner, SpacetimeDB.Timestamp>(tableName, "next_spawn_at");
             Source = new global::SpacetimeDB.Col<Spawner, byte>(tableName, "source");
             Biome = new global::SpacetimeDB.Col<Spawner, byte>(tableName, "biome");
+            ZoneId = new global::SpacetimeDB.Col<Spawner, uint>(tableName, "zone_id");
         }
     }
 
     public sealed class SpawnerIxCols
     {
         public global::SpacetimeDB.IxCol<Spawner, ushort> Id { get; }
+        public global::SpacetimeDB.IxCol<Spawner, uint> ZoneId { get; }
 
         public SpawnerIxCols(string tableName)
         {
             Id = new global::SpacetimeDB.IxCol<Spawner, ushort>(tableName, "id");
+            ZoneId = new global::SpacetimeDB.IxCol<Spawner, uint>(tableName, "zone_id");
         }
     }
 }

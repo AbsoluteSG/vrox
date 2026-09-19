@@ -17,13 +17,34 @@ namespace Vrox.Editor
     ///
     /// Sent as chunks rather than tiles. A 40x40 area is nine rows this way and
     /// 1,600 the other, and the difference only grows.
+    ///
+    /// The flattening is shared with <see cref="PushDungeons"/>, so a realm and a
+    /// dungeon painted with the same tiles mean the same thing on the server.
     /// </remarks>
     public static class PushTerrain
     {
-        private const int ChunkSize = 16;
+        /// <summary>Must match the server's ChunkSize.</summary>
+        internal const int ChunkSize = 16;
 
         /// <summary>Fallback span, used only before the realm row has arrived.</summary>
         private const int DefaultWorldSize = 128;
+
+        /// <summary>An area's tilemaps merged into per-tile arrays, row-major, span by span.</summary>
+        internal sealed class FlatArea
+        {
+            public int Span;
+            public byte[] Flags = System.Array.Empty<byte>();
+            public byte[] Hazard = System.Array.Empty<byte>();
+            public byte[] Biome = System.Array.Empty<byte>();
+            public byte[] Weight = System.Array.Empty<byte>();
+
+            /// <summary>Cells that had any tile painted, inside the span.</summary>
+            public HashSet<Vector2Int> Seen = new();
+
+            public int Painted;
+            public int Foreign;
+            public int Outside;
+        }
 
         /// <summary>
         /// The server's world span, read from the replicated realm row.
@@ -99,7 +120,10 @@ namespace Vrox.Editor
 
         public static void Push(SpacetimeDB.Types.DbConnection conn)
         {
-            var area = Object.FindAnyObjectByType<VroxArea>();
+            // The realm's area is the one that is not part of a dungeon layout.
+            // Picking one of those up here would paint a dungeon over the realm.
+            var area = Object.FindObjectsByType<VroxArea>(FindObjectsInactive.Exclude)
+                .FirstOrDefault(a => a.GetComponentInParent<VroxDungeonLayout>() == null);
             if (area == null)
             {
                 return;
@@ -107,14 +131,36 @@ namespace Vrox.Editor
 
             int worldSize = WorldSizeFrom(conn);
             int span = Mathf.CeilToInt((float)worldSize / ChunkSize) * ChunkSize;
-            var flags = new byte[span * span];
-            var hazard = new byte[span * span];
-            var biome = new byte[span * span];
-            var weight = new byte[span * span];
+            var flat = Flatten(area, span);
 
-            for (int i = 0; i < weight.Length; i++)
+            conn.Reducers.ClearTerrain();
+            int chunks = 0;
+            foreach (var (cell, tiles) in Chunks(flat))
             {
-                weight[i] = (byte)Mathf.Clamp(area.DefaultSpawnWeight, 0, 255);
+                conn.Reducers.UpsertTerrainChunk(cell, tiles);
+                chunks++;
+            }
+
+            PushSpawnPoint(conn, area, flat.Seen, flat.Flags, span);
+            Report(flat, area, "the realm");
+            Debug.Log($"Vrox: pushed terrain — {flat.Painted} tile(s) across {chunks} chunk(s).");
+        }
+
+        /// <summary>Merges an area's layers into tile arrays, span tiles square from the Grid's origin.</summary>
+        internal static FlatArea Flatten(VroxArea area, int span)
+        {
+            var flat = new FlatArea
+            {
+                Span = span,
+                Flags = new byte[span * span],
+                Hazard = new byte[span * span],
+                Biome = new byte[span * span],
+                Weight = new byte[span * span],
+            };
+
+            for (int i = 0; i < flat.Weight.Length; i++)
+            {
+                flat.Weight[i] = (byte)Mathf.Clamp(area.DefaultSpawnWeight, 0, 255);
             }
 
             // Everywhere starts out of bounds and painting carves the walkable
@@ -122,16 +168,11 @@ namespace Vrox.Editor
             // round, and only suits a map with no edges.
             if (area.UnpaintedIsSolid)
             {
-                for (int i = 0; i < flags.Length; i++)
+                for (int i = 0; i < flat.Flags.Length; i++)
                 {
-                    flags[i] = 0b11;
+                    flat.Flags[i] = 0b11;
                 }
             }
-
-            int painted = 0;
-            int foreign = 0;
-            int outside = 0;
-            var seen = new HashSet<Vector2Int>();
 
             foreach (var layer in area.Layers.Where(l => l != null))
             {
@@ -152,10 +193,10 @@ namespace Vrox.Editor
                         // the origin sits half in negative cells, and every one of
                         // them would vanish with no indication that most of the
                         // area never reached the server.
-                        outside++;
+                        flat.Outside++;
                         continue;
                     }
-                    seen.Add(new Vector2Int(x, y));
+                    flat.Seen.Add(new Vector2Int(x, y));
 
                     if (tile is not VroxTile vrox)
                     {
@@ -163,15 +204,15 @@ namespace Vrox.Editor
                         // floor silently lets players walk through scenery; as
                         // wall it silently blocks corridors. Either way the map
                         // would be wrong in a way nothing reports.
-                        foreign++;
+                        flat.Foreign++;
                         continue;
                     }
 
                     int index = y * span + x;
-                    flags[index] = vrox.Flags;
-                    hazard[index] = (byte)Mathf.Clamp(vrox.HazardDamage, 0, 255);
-                    biome[index] = (byte)Mathf.Clamp(vrox.BiomeId, 0, 255);
-                    painted++;
+                    flat.Flags[index] = vrox.Flags;
+                    flat.Hazard[index] = (byte)Mathf.Clamp(vrox.HazardDamage, 0, 255);
+                    flat.Biome[index] = (byte)Mathf.Clamp(vrox.BiomeId, 0, 255);
+                    flat.Painted++;
                 }
             }
 
@@ -186,23 +227,28 @@ namespace Vrox.Editor
                     int x = pos.x, y = pos.y;
                     if (x >= 0 && y >= 0 && x < span && y < span)
                     {
-                        weight[y * span + x] = (byte)Mathf.Clamp(marker.SpawnWeight, 0, 255);
+                        flat.Weight[y * span + x] = (byte)Mathf.Clamp(marker.SpawnWeight, 0, 255);
                     }
                 }
             }
 
             // Solid ground is never spawnable, whatever the weight layer says.
             // Otherwise an enemy appears inside a wall and cannot move.
-            for (int i = 0; i < flags.Length; i++)
+            for (int i = 0; i < flat.Flags.Length; i++)
             {
-                if ((flags[i] & 1) != 0)
+                if ((flat.Flags[i] & 1) != 0)
                 {
-                    weight[i] = 0;
+                    flat.Weight[i] = 0;
                 }
             }
 
-            conn.Reducers.ClearTerrain();
+            return flat;
+        }
 
+        /// <summary>The flattened area cut into chunk rows, keyed as the server packs them.</summary>
+        internal static IEnumerable<(uint cell, List<SpacetimeDB.Types.TileData> tiles)> Chunks(FlatArea flat)
+        {
+            int span = flat.Span;
             int chunks = span / ChunkSize;
             for (int cy = 0; cy < chunks; cy++)
             {
@@ -216,38 +262,39 @@ namespace Vrox.Editor
                             int index = (cy * ChunkSize + ty) * span + cx * ChunkSize + tx;
                             tiles.Add(new SpacetimeDB.Types.TileData
                             {
-                                Flags = flags[index],
-                                SpawnWeight = weight[index],
-                                Hazard = hazard[index],
-                                Biome = biome[index],
+                                Flags = flat.Flags[index],
+                                SpawnWeight = flat.Weight[index],
+                                Hazard = flat.Hazard[index],
+                                Biome = flat.Biome[index],
                             });
                         }
                     }
-                    conn.Reducers.UpsertTerrainChunk((uint)((cx << 16) | cy), tiles);
+                    yield return ((uint)((cx << 16) | cy), tiles);
                 }
             }
+        }
 
-            PushSpawnPoint(conn, area, seen, flags, span);
-
-            if (foreign > 0)
+        /// <summary>Says what did not make it into a flattened area.</summary>
+        internal static void Report(FlatArea flat, Object context, string what)
+        {
+            if (flat.Foreign > 0)
             {
-                Debug.LogWarning($"Vrox: {foreign} painted cell(s) use a plain Tile rather than a "
-                               + "VroxTile, so their meaning is unknown and were left as they were. "
-                               + "Create tiles via Assets > Create > Vrox > Tile.", area);
+                Debug.LogWarning($"Vrox: {flat.Foreign} painted cell(s) in {what} use a plain Tile rather "
+                               + "than a VroxTile, so their meaning is unknown and were left as they were. "
+                               + "Create tiles via Assets > Create > Vrox > Tile.", context);
             }
-            if (outside > 0)
+            if (flat.Outside > 0)
             {
-                Debug.LogError($"Vrox: {outside} painted cell(s) are outside the world "
-                             + $"(0,0)-({worldSize},{worldSize}) and did not reach the server. "
-                             + "Tilemap cell coordinates are world tile coordinates, so move the "
-                             + "drawing into the positive quadrant.", area);
+                Debug.LogError($"Vrox: {flat.Outside} painted cell(s) in {what} are outside "
+                             + $"(0,0)-({flat.Span},{flat.Span}) and did not reach the server. "
+                             + "Tilemap cell coordinates are measured from the Grid, so move the "
+                             + "drawing into the positive quadrant.", context);
             }
-            if (painted == 0)
+            if (flat.Painted == 0)
             {
-                Debug.LogError("Vrox: no usable tiles were exported. With Unpainted Is Solid on, "
-                             + "that leaves the whole world impassable.", area);
+                Debug.LogError($"Vrox: no usable tiles were exported for {what}. With Unpainted Is "
+                             + "Solid on, that leaves the whole of it impassable.", context);
             }
-            Debug.Log($"Vrox: pushed terrain — {painted} tile(s) across {chunks * chunks} chunk(s).");
         }
     }
 }

@@ -53,6 +53,8 @@ namespace SpacetimeDB.Types
         public float Phase;
         [DataMember(Name = "phase_engaged_us")]
         public ulong PhaseEngagedUs;
+        [DataMember(Name = "zone_id")]
+        public uint ZoneId;
 
         public Enemy(
             ulong Id,
@@ -74,7 +76,8 @@ namespace SpacetimeDB.Types
             ushort Energy,
             SpacetimeDB.Identity? Target,
             float Phase,
-            ulong PhaseEngagedUs
+            ulong PhaseEngagedUs,
+            uint ZoneId
         )
         {
             this.Id = Id;
@@ -97,6 +100,7 @@ namespace SpacetimeDB.Types
             this.Target = Target;
             this.Phase = Phase;
             this.PhaseEngagedUs = PhaseEngagedUs;
+            this.ZoneId = ZoneId;
         }
 
         public Enemy()

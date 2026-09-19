@@ -32,16 +32,19 @@ namespace SpacetimeDB.Types
             AddTable(DamageTally = new(conn));
             AddTable(DebuffTally = new(conn));
             AddTable(Dummy = new(conn));
+            AddTable(DungeonLayout = new(conn));
             AddTable(Enemy = new(conn));
             AddTable(EnemyDef = new(conn));
             AddTable(Hit = new(conn));
             AddTable(Inventory = new(conn));
             AddTable(ItemDef = new(conn));
+            AddTable(LayoutChunk = new(conn));
             AddTable(LootDrop = new(conn));
             AddTable(PhaseDef = new(conn));
             AddTable(Player = new(conn));
             AddTable(PlayerConfig = new(conn));
             AddTable(PlayerStat = new(conn));
+            AddTable(Portal = new(conn));
             AddTable(Realm = new(conn));
             AddTable(RealmConfig = new(conn));
             AddTable(Shot = new(conn));
@@ -51,6 +54,7 @@ namespace SpacetimeDB.Types
             AddTable(Vault = new(conn));
             AddTable(WeaponDef = new(conn));
             AddTable(WorldSpawn = new(conn));
+            AddTable(Zone = new(conn));
         }
     }
 
@@ -552,16 +556,19 @@ namespace SpacetimeDB.Types
             new QueryBuilder().From.DamageTally().ToSql(),
             new QueryBuilder().From.DebuffTally().ToSql(),
             new QueryBuilder().From.Dummy().ToSql(),
+            new QueryBuilder().From.DungeonLayout().ToSql(),
             new QueryBuilder().From.Enemy().ToSql(),
             new QueryBuilder().From.EnemyDef().ToSql(),
             new QueryBuilder().From.Hit().ToSql(),
             new QueryBuilder().From.Inventory().ToSql(),
             new QueryBuilder().From.ItemDef().ToSql(),
+            new QueryBuilder().From.LayoutChunk().ToSql(),
             new QueryBuilder().From.LootDrop().ToSql(),
             new QueryBuilder().From.PhaseDef().ToSql(),
             new QueryBuilder().From.Player().ToSql(),
             new QueryBuilder().From.PlayerConfig().ToSql(),
             new QueryBuilder().From.PlayerStat().ToSql(),
+            new QueryBuilder().From.Portal().ToSql(),
             new QueryBuilder().From.Realm().ToSql(),
             new QueryBuilder().From.RealmConfig().ToSql(),
             new QueryBuilder().From.Shot().ToSql(),
@@ -571,6 +578,7 @@ namespace SpacetimeDB.Types
             new QueryBuilder().From.Vault().ToSql(),
             new QueryBuilder().From.WeaponDef().ToSql(),
             new QueryBuilder().From.WorldSpawn().ToSql(),
+            new QueryBuilder().From.Zone().ToSql(),
         }
         ;
     }
@@ -582,16 +590,19 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Table<DamageTally, DamageTallyCols, DamageTallyIxCols> DamageTally() => new("damage_tally", new DamageTallyCols("damage_tally"), new DamageTallyIxCols("damage_tally"));
         public global::SpacetimeDB.Table<DebuffTally, DebuffTallyCols, DebuffTallyIxCols> DebuffTally() => new("debuff_tally", new DebuffTallyCols("debuff_tally"), new DebuffTallyIxCols("debuff_tally"));
         public global::SpacetimeDB.Table<Dummy, DummyCols, DummyIxCols> Dummy() => new("dummy", new DummyCols("dummy"), new DummyIxCols("dummy"));
+        public global::SpacetimeDB.Table<DungeonLayout, DungeonLayoutCols, DungeonLayoutIxCols> DungeonLayout() => new("dungeon_layout", new DungeonLayoutCols("dungeon_layout"), new DungeonLayoutIxCols("dungeon_layout"));
         public global::SpacetimeDB.Table<Enemy, EnemyCols, EnemyIxCols> Enemy() => new("enemy", new EnemyCols("enemy"), new EnemyIxCols("enemy"));
         public global::SpacetimeDB.Table<EnemyDef, EnemyDefCols, EnemyDefIxCols> EnemyDef() => new("enemy_def", new EnemyDefCols("enemy_def"), new EnemyDefIxCols("enemy_def"));
         public global::SpacetimeDB.Table<Hit, HitCols, HitIxCols> Hit() => new("hit", new HitCols("hit"), new HitIxCols("hit"));
         public global::SpacetimeDB.Table<Inventory, InventoryCols, InventoryIxCols> Inventory() => new("inventory", new InventoryCols("inventory"), new InventoryIxCols("inventory"));
         public global::SpacetimeDB.Table<ItemDef, ItemDefCols, ItemDefIxCols> ItemDef() => new("item_def", new ItemDefCols("item_def"), new ItemDefIxCols("item_def"));
+        public global::SpacetimeDB.Table<LayoutChunk, LayoutChunkCols, LayoutChunkIxCols> LayoutChunk() => new("layout_chunk", new LayoutChunkCols("layout_chunk"), new LayoutChunkIxCols("layout_chunk"));
         public global::SpacetimeDB.Table<LootDrop, LootDropCols, LootDropIxCols> LootDrop() => new("loot_drop", new LootDropCols("loot_drop"), new LootDropIxCols("loot_drop"));
         public global::SpacetimeDB.Table<PhaseDef, PhaseDefCols, PhaseDefIxCols> PhaseDef() => new("phase_def", new PhaseDefCols("phase_def"), new PhaseDefIxCols("phase_def"));
         public global::SpacetimeDB.Table<Player, PlayerCols, PlayerIxCols> Player() => new("player", new PlayerCols("player"), new PlayerIxCols("player"));
         public global::SpacetimeDB.Table<PlayerConfig, PlayerConfigCols, PlayerConfigIxCols> PlayerConfig() => new("player_config", new PlayerConfigCols("player_config"), new PlayerConfigIxCols("player_config"));
         public global::SpacetimeDB.Table<PlayerStat, PlayerStatCols, PlayerStatIxCols> PlayerStat() => new("player_stat", new PlayerStatCols("player_stat"), new PlayerStatIxCols("player_stat"));
+        public global::SpacetimeDB.Table<Portal, PortalCols, PortalIxCols> Portal() => new("portal", new PortalCols("portal"), new PortalIxCols("portal"));
         public global::SpacetimeDB.Table<Realm, RealmCols, RealmIxCols> Realm() => new("realm", new RealmCols("realm"), new RealmIxCols("realm"));
         public global::SpacetimeDB.Table<RealmConfig, RealmConfigCols, RealmConfigIxCols> RealmConfig() => new("realm_config", new RealmConfigCols("realm_config"), new RealmConfigIxCols("realm_config"));
         public global::SpacetimeDB.Table<Shot, ShotCols, ShotIxCols> Shot() => new("shot", new ShotCols("shot"), new ShotIxCols("shot"));
@@ -601,6 +612,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Table<Vault, VaultCols, VaultIxCols> Vault() => new("vault", new VaultCols("vault"), new VaultIxCols("vault"));
         public global::SpacetimeDB.Table<WeaponDef, WeaponDefCols, WeaponDefIxCols> WeaponDef() => new("weapon_def", new WeaponDefCols("weapon_def"), new WeaponDefIxCols("weapon_def"));
         public global::SpacetimeDB.Table<WorldSpawn, WorldSpawnCols, WorldSpawnIxCols> WorldSpawn() => new("world_spawn", new WorldSpawnCols("world_spawn"), new WorldSpawnIxCols("world_spawn"));
+        public global::SpacetimeDB.Table<Zone, ZoneCols, ZoneIxCols> Zone() => new("zone", new ZoneCols("zone"), new ZoneIxCols("zone"));
     }
 
     public sealed class TypedSubscriptionBuilder
@@ -682,17 +694,21 @@ namespace SpacetimeDB.Types
             var eventContext = (ReducerEventContext)context;
             return reducer switch
             {
+                Reducer.AddLayoutSpawner args => Reducers.InvokeAddLayoutSpawner(eventContext, args),
                 Reducer.BenchGenerate args => Reducers.InvokeBenchGenerate(eventContext, args),
                 Reducer.ClearBiomes args => Reducers.InvokeClearBiomes(eventContext, args),
                 Reducer.ClearEnemies args => Reducers.InvokeClearEnemies(eventContext, args),
                 Reducer.ClearEnemyLoot args => Reducers.InvokeClearEnemyLoot(eventContext, args),
+                Reducer.ClearLayout args => Reducers.InvokeClearLayout(eventContext, args),
                 Reducer.ClearLoot args => Reducers.InvokeClearLoot(eventContext, args),
                 Reducer.ClearPhases args => Reducers.InvokeClearPhases(eventContext, args),
                 Reducer.ClearSpawners args => Reducers.InvokeClearSpawners(eventContext, args),
                 Reducer.ClearTerrain args => Reducers.InvokeClearTerrain(eventContext, args),
                 Reducer.CloseBag args => Reducers.InvokeCloseBag(eventContext, args),
                 Reducer.CreateCharacter args => Reducers.InvokeCreateCharacter(eventContext, args),
+                Reducer.DebugOpenPortal args => Reducers.InvokeDebugOpenPortal(eventContext, args),
                 Reducer.DepositToVault args => Reducers.InvokeDepositToVault(eventContext, args),
+                Reducer.EnterPortal args => Reducers.InvokeEnterPortal(eventContext, args),
                 Reducer.EquipWeapon args => Reducers.InvokeEquipWeapon(eventContext, args),
                 Reducer.GenerateRealm args => Reducers.InvokeGenerateRealm(eventContext, args),
                 Reducer.GiveTestItem args => Reducers.InvokeGiveTestItem(eventContext, args),
@@ -715,9 +731,11 @@ namespace SpacetimeDB.Types
                 Reducer.TakeAllFromBag args => Reducers.InvokeTakeAllFromBag(eventContext, args),
                 Reducer.TakeFromBag args => Reducers.InvokeTakeFromBag(eventContext, args),
                 Reducer.UpsertBiome args => Reducers.InvokeUpsertBiome(eventContext, args),
+                Reducer.UpsertDungeonLayout args => Reducers.InvokeUpsertDungeonLayout(eventContext, args),
                 Reducer.UpsertEnemyDef args => Reducers.InvokeUpsertEnemyDef(eventContext, args),
                 Reducer.UpsertEnemyLoot args => Reducers.InvokeUpsertEnemyLoot(eventContext, args),
                 Reducer.UpsertItemDef args => Reducers.InvokeUpsertItemDef(eventContext, args),
+                Reducer.UpsertLayoutChunk args => Reducers.InvokeUpsertLayoutChunk(eventContext, args),
                 Reducer.UpsertLoot args => Reducers.InvokeUpsertLoot(eventContext, args),
                 Reducer.UpsertLootPool args => Reducers.InvokeUpsertLootPool(eventContext, args),
                 Reducer.UpsertPhase args => Reducers.InvokeUpsertPhase(eventContext, args),

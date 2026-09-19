@@ -29,6 +29,7 @@ namespace Vrox.Editor
             Ensure<VroxMuzzleFlash>(net, added);
             Ensure<VroxCursor>(net, added);
             Ensure<VroxSpawnerGizmos>(net, added);
+            Ensure<VroxPortals>(net, added);
 
             // A generated scene is a test scene, so it drops straight in.
             Ensure<VroxGuestCharacter>(net, added);

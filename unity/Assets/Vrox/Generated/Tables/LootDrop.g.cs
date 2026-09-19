@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly IdUniqueIndex Id;
 
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(LootDrop row) => row.ZoneId;
+
+                public ZoneIdIndex(LootDropHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal LootDropHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(LootDrop row) => row.Id;
@@ -45,6 +55,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<LootDrop, SpacetimeDB.Timestamp> DroppedAt { get; }
         public global::SpacetimeDB.Col<LootDrop, byte> BagKind { get; }
         public global::SpacetimeDB.Col<LootDrop, System.Collections.Generic.List<BagItem>> Items { get; }
+        public global::SpacetimeDB.Col<LootDrop, uint> ZoneId { get; }
 
         public LootDropCols(string tableName)
         {
@@ -54,16 +65,19 @@ namespace SpacetimeDB.Types
             DroppedAt = new global::SpacetimeDB.Col<LootDrop, SpacetimeDB.Timestamp>(tableName, "dropped_at");
             BagKind = new global::SpacetimeDB.Col<LootDrop, byte>(tableName, "bag_kind");
             Items = new global::SpacetimeDB.Col<LootDrop, System.Collections.Generic.List<BagItem>>(tableName, "items");
+            ZoneId = new global::SpacetimeDB.Col<LootDrop, uint>(tableName, "zone_id");
         }
     }
 
     public sealed class LootDropIxCols
     {
         public global::SpacetimeDB.IxCol<LootDrop, ulong> Id { get; }
+        public global::SpacetimeDB.IxCol<LootDrop, uint> ZoneId { get; }
 
         public LootDropIxCols(string tableName)
         {
             Id = new global::SpacetimeDB.IxCol<LootDrop, ulong>(tableName, "id");
+            ZoneId = new global::SpacetimeDB.IxCol<LootDrop, uint>(tableName, "zone_id");
         }
     }
 }

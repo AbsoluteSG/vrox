@@ -33,6 +33,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Hit, ushort> Amount { get; }
         public global::SpacetimeDB.Col<Hit, bool> Crit { get; }
         public global::SpacetimeDB.Col<Hit, byte> Element { get; }
+        public global::SpacetimeDB.Col<Hit, uint> ZoneId { get; }
 
         public HitCols(string tableName)
         {
@@ -42,6 +43,7 @@ namespace SpacetimeDB.Types
             Amount = new global::SpacetimeDB.Col<Hit, ushort>(tableName, "amount");
             Crit = new global::SpacetimeDB.Col<Hit, bool>(tableName, "crit");
             Element = new global::SpacetimeDB.Col<Hit, byte>(tableName, "element");
+            ZoneId = new global::SpacetimeDB.Col<Hit, uint>(tableName, "zone_id");
         }
     }
 

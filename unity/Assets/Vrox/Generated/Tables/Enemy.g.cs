@@ -44,11 +44,31 @@ namespace SpacetimeDB.Types
 
             public readonly SpawnerIdIndex SpawnerId;
 
+            public sealed class ZoneCellIndex : BTreeIndexBase<(uint ZoneId, uint Cell)>
+            {
+                protected override (uint ZoneId, uint Cell) GetKey(Enemy row) => (row.ZoneId, row.Cell);
+
+                public ZoneCellIndex(EnemyHandle table) : base(table) { }
+            }
+
+            public readonly ZoneCellIndex ZoneCell;
+
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(Enemy row) => row.ZoneId;
+
+                public ZoneIdIndex(EnemyHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal EnemyHandle(DbConnection conn) : base(conn)
             {
                 Cell = new(this);
                 Id = new(this);
                 SpawnerId = new(this);
+                ZoneCell = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(Enemy row) => row.Id;
@@ -79,6 +99,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Enemy, SpacetimeDB.Identity> Target { get; }
         public global::SpacetimeDB.Col<Enemy, float> Phase { get; }
         public global::SpacetimeDB.Col<Enemy, ulong> PhaseEngagedUs { get; }
+        public global::SpacetimeDB.Col<Enemy, uint> ZoneId { get; }
 
         public EnemyCols(string tableName)
         {
@@ -102,6 +123,7 @@ namespace SpacetimeDB.Types
             Target = new global::SpacetimeDB.Col<Enemy, SpacetimeDB.Identity>(tableName, "target");
             Phase = new global::SpacetimeDB.Col<Enemy, float>(tableName, "phase");
             PhaseEngagedUs = new global::SpacetimeDB.Col<Enemy, ulong>(tableName, "phase_engaged_us");
+            ZoneId = new global::SpacetimeDB.Col<Enemy, uint>(tableName, "zone_id");
         }
     }
 
@@ -110,12 +132,14 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.IxCol<Enemy, ulong> Id { get; }
         public global::SpacetimeDB.IxCol<Enemy, ushort> SpawnerId { get; }
         public global::SpacetimeDB.IxCol<Enemy, uint> Cell { get; }
+        public global::SpacetimeDB.IxCol<Enemy, uint> ZoneId { get; }
 
         public EnemyIxCols(string tableName)
         {
             Id = new global::SpacetimeDB.IxCol<Enemy, ulong>(tableName, "id");
             SpawnerId = new global::SpacetimeDB.IxCol<Enemy, ushort>(tableName, "spawner_id");
             Cell = new global::SpacetimeDB.IxCol<Enemy, uint>(tableName, "cell");
+            ZoneId = new global::SpacetimeDB.IxCol<Enemy, uint>(tableName, "zone_id");
         }
     }
 }

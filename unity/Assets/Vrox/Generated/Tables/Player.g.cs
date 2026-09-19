@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly IdentityUniqueIndex Identity;
 
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(Player row) => row.ZoneId;
+
+                public ZoneIdIndex(PlayerHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal PlayerHandle(DbConnection conn) : base(conn)
             {
                 Identity = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(Player row) => row.Identity;
@@ -59,6 +69,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Player, ulong> SlowedUntilUs { get; }
         public global::SpacetimeDB.Col<Player, ulong> ArmorBrokenUntilUs { get; }
         public global::SpacetimeDB.Col<Player, ushort> ArmorBreakPercent { get; }
+        public global::SpacetimeDB.Col<Player, uint> ZoneId { get; }
 
         public PlayerCols(string tableName)
         {
@@ -82,16 +93,19 @@ namespace SpacetimeDB.Types
             SlowedUntilUs = new global::SpacetimeDB.Col<Player, ulong>(tableName, "slowed_until_us");
             ArmorBrokenUntilUs = new global::SpacetimeDB.Col<Player, ulong>(tableName, "armor_broken_until_us");
             ArmorBreakPercent = new global::SpacetimeDB.Col<Player, ushort>(tableName, "armor_break_percent");
+            ZoneId = new global::SpacetimeDB.Col<Player, uint>(tableName, "zone_id");
         }
     }
 
     public sealed class PlayerIxCols
     {
         public global::SpacetimeDB.IxCol<Player, SpacetimeDB.Identity> Identity { get; }
+        public global::SpacetimeDB.IxCol<Player, uint> ZoneId { get; }
 
         public PlayerIxCols(string tableName)
         {
             Identity = new global::SpacetimeDB.IxCol<Player, SpacetimeDB.Identity>(tableName, "identity");
+            ZoneId = new global::SpacetimeDB.IxCol<Player, uint>(tableName, "zone_id");
         }
     }
 }

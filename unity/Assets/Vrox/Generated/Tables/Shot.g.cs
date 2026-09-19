@@ -26,9 +26,19 @@ namespace SpacetimeDB.Types
 
             public readonly IdUniqueIndex Id;
 
+            public sealed class ZoneIdIndex : BTreeIndexBase<uint>
+            {
+                protected override uint GetKey(Shot row) => row.ZoneId;
+
+                public ZoneIdIndex(ShotHandle table) : base(table) { }
+            }
+
+            public readonly ZoneIdIndex ZoneId;
+
             internal ShotHandle(DbConnection conn) : base(conn)
             {
                 Id = new(this);
+                ZoneId = new(this);
             }
 
             protected override object GetPrimaryKey(Shot row) => row.Id;
@@ -60,6 +70,7 @@ namespace SpacetimeDB.Types
         public global::SpacetimeDB.Col<Shot, float> WavePhase { get; }
         public global::SpacetimeDB.Col<Shot, uint> Tint { get; }
         public global::SpacetimeDB.Col<Shot, byte> SpriteId { get; }
+        public global::SpacetimeDB.Col<Shot, uint> ZoneId { get; }
 
         public ShotCols(string tableName)
         {
@@ -84,16 +95,19 @@ namespace SpacetimeDB.Types
             WavePhase = new global::SpacetimeDB.Col<Shot, float>(tableName, "wave_phase");
             Tint = new global::SpacetimeDB.Col<Shot, uint>(tableName, "tint");
             SpriteId = new global::SpacetimeDB.Col<Shot, byte>(tableName, "sprite_id");
+            ZoneId = new global::SpacetimeDB.Col<Shot, uint>(tableName, "zone_id");
         }
     }
 
     public sealed class ShotIxCols
     {
         public global::SpacetimeDB.IxCol<Shot, ulong> Id { get; }
+        public global::SpacetimeDB.IxCol<Shot, uint> ZoneId { get; }
 
         public ShotIxCols(string tableName)
         {
             Id = new global::SpacetimeDB.IxCol<Shot, ulong>(tableName, "id");
+            ZoneId = new global::SpacetimeDB.IxCol<Shot, uint>(tableName, "zone_id");
         }
     }
 }
