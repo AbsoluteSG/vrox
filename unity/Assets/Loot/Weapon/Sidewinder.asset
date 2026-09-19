@@ -37,7 +37,7 @@ MonoBehaviour:
   Magazine: 24
   ReloadMs: 900
   ReloadPerShell: 0
-  Kickback: 0.34
+  Kickback: 0
   MoveSpeedPercent: 100
   Pattern:
     rid: 415439623474993470

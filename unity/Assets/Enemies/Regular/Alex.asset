@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94a30e3cda32249709f93793ad8ff411, type: 3}
+  m_Name: Alex
+  m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
+  Id: 25
+  DisplayName: Alex
+  Tint: {r: 1, g: 1, b: 1, a: 1}
+  Sprite: {fileID: 1518381562, guid: 24a13eacec72142e0a30c266223e1753, type: 3}
+  MaxHp: 60
+  Radius: 1.5
+  Speed: 3.5
+  Movement:
+    rid: 7291000000000000025
+  Weapon: {fileID: 11400000, guid: 616af5a996bdb0dc901aaa647f961d17, type: 2}
+  AttackRange: 8
+  TouchDamage: 0
+  IsBoss: 0
+  MaxEnergy: 0
+  Phases: []
+  Resist: []
+  LootPools:
+  - Pool: {fileID: 11400000, guid: 9daa541e53436450b9e6c89490eb646d, type: 2}
+    Weight: 1
+  NoDropWeight: 60
+  references:
+    version: 2
+    RefIds:
+    - rid: 7291000000000000025
+      type: {class: ChaseMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        NoticeRange: 12

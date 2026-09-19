@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Vrox::Vrox.Equipment.EnemyItem
   Id: 5
   DisplayName: Molten Colossus
-  Tint: {r: 1.0, g: 0.35, b: 0.1, a: 1.0}
+  Tint: {r: 1, g: 0.35, b: 0.1, a: 1}
+  Sprite: {fileID: 0}
   MaxHp: 7200
   Radius: 1.7
   Speed: 2.4
@@ -39,13 +40,13 @@ MonoBehaviour:
       rid: 415439699925005356
   - Name: Wheel of Ash
     Movement:
-      rid: 415439630332356899
+      rid: 415439815249231873
     Weapon: {fileID: 11400000, guid: 3a859bbb1480fde7e4453c540fc3fd22, type: 2}
     AttackRange: 28
     Invulnerable: 0
     Untargetable: 0
     DamageTakenPercent: 100
-    Speed: 3.0
+    Speed: 3
     Transition:
       rid: 415439653631260391
   - Name: Last Ember
@@ -85,12 +86,6 @@ MonoBehaviour:
     - rid: 415439621002435901
       type: {class: NeverTransition, ns: Vrox.Equipment, asm: Vrox}
       data: 
-    - rid: 415439630332356899
-      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
-      data:
-        Circles: 1
-        NoticeRange: 24
-        Radius: 6
     - rid: 415439653631260391
       type: {class: HealthBelowTransition, ns: Vrox.Equipment, asm: Vrox}
       data:
@@ -102,3 +97,9 @@ MonoBehaviour:
       type: {class: TimedTransition, ns: Vrox.Equipment, asm: Vrox}
       data:
         Seconds: 5
+    - rid: 415439815249231873
+      type: {class: OrbitMovement, ns: Vrox.Equipment, asm: Vrox}
+      data:
+        Circles: 0
+        NoticeRange: 15
+        Radius: 6

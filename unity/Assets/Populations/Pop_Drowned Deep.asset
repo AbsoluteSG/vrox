@@ -16,18 +16,9 @@ MonoBehaviour:
   MaxAlive: 14
   IntervalMs: 1800
   Enemies:
-  - Enemy: {fileID: 11400000, guid: 8f978c7f129f5e3ccb8c2ff56d5ecf32, type: 2}
+  - Enemy: {fileID: 11400000, guid: 1b059668bf824380b3c2ed102444b15b, type: 2}
     Weight: 50
     MaxAlive: 10
-  - Enemy: {fileID: 11400000, guid: 407980578a95df583b39d8580514e909, type: 2}
+  - Enemy: {fileID: 11400000, guid: 6baed4cc511c428ea890e05ba5ecff24, type: 2}
     Weight: 28
     MaxAlive: 7
-  - Enemy: {fileID: 11400000, guid: 37ce50d6d2ce7138e2e7f18efbb64af5, type: 2}
-    Weight: 12
-    MaxAlive: 3
-  - Enemy: {fileID: 11400000, guid: ca24db64c13ec1437489293bd407d6d6, type: 2}
-    Weight: 8
-    MaxAlive: 3
-  - Enemy: {fileID: 11400000, guid: 0911113ff7ae894efbcf8f9d153bd027, type: 2}
-    Weight: 2
-    MaxAlive: 1
