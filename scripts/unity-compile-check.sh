@@ -61,7 +61,7 @@ managed, root, sdk, work, script_asm = sys.argv[1:6]
 # Only the package assemblies this project references, not the whole folder —
 # a borrowed folder holds another project's own code too.
 dlls = sorted(glob.glob(f"{managed}/*.dll"))
-for name in ("Unity.InputSystem", "UnityEngine.UI", "Unity.TextMeshPro"):
+for name in ("Unity.InputSystem", "UnityEngine.UI", "Unity.TextMeshPro", "Unity.2D.Sprite.Editor"):
     dlls += glob.glob(f"{script_asm}/{name}.dll")
 refs = "\n".join(
     f'    <Reference Include="{pathlib.Path(d).stem}"><HintPath>{d}</HintPath><Private>false</Private></Reference>'
